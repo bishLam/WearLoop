@@ -2,14 +2,15 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { Stack } from 'expo-router'
 
-const HomeLayout = () => {
+const Layout = () => {
   return (
     <Stack>
-      <Stack.Screen name='home' options={{headerShown:false}} />
+          <Stack.Screen name='index' options={{headerShown:false}} />
+          <Stack.Screen name='signup' options={{headerShown:false}} />
     </Stack>
   )
 }
 
-export default HomeLayout
+export default Layout
 
 const styles = StyleSheet.create({})
