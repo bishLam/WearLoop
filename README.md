@@ -1,4 +1,6 @@
-# Welcome to your Expo app 👋
+# Welcome to our Expo app "WearLoop"👋
+Follow these steps to get started with Expo setup
+
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
