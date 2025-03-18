@@ -48,45 +48,45 @@ const Login = () => {
     // if all these conditions are met we can verify the input strings are OK
     setError("")
     setErrorSpot({ email: false, password: false })
-
-
-
   }
 
   return (
-    <SafeAreaView>
-      <ScrollView>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{ flex: 1 }}>
         <View style={styles.mainContainer}>
           <Image source={logo} style={styles.logo} />
           <Text style={styles.welcomeText}>Welcome back to Wearloop</Text>
+          <Text style={styles.bannerText}>Where clothes dream second life, and you become the reason</Text>
           <Text style={[styles.signInText, { color: Colors.light.cyan }]}> Sign In </Text>
           <CustomInput
-            title = "Email"
+            title="Email"
             error={errorSpot.email}
             value={form.email}
             handleChangeText={(val) => setForm({ ...form, email: val })}
             secureText={false}
-            keyboardType={'email-address'} />
-
-          <View style={[styles.inputContainer]}>
-
+            keyboardType={'email-address'} 
+            additionalStyles={null}
+            />
+            
           <CustomInput
-            title = "Password"
+            title="Password"
             error={errorSpot.password}
             value={form.password}
             handleChangeText={(val) => setForm({ ...form, password: val })}
             secureText={true}
-            keyboardType={'default'} />
+            keyboardType={'default'} 
+            additionalStyles={null}
+            />
 
-            {error &&
-              <Text style={{ color: "red" }}>{error}</Text>
-            }
+          {error &&
+            <Text style={{ color: "red" }}>{error}</Text>
+          }
 
-            {/* This needs to be changed so that it takes us to forgot password page */}
-            <Link style={[styles.forgotPassword, { color: Colors.light.cyan }]} href="/signup">
-              Forgot Password ?
-            </Link>
-          </View>
+          {/* This needs to be changed so that it takes us to forgot password page */}
+          <Link style={[styles.forgotPassword, { color: Colors.light.cyan }]} href="/forgotPassword">
+            Forgot Password ?
+          </Link>
+
           <TouchableOpacity
             style={[styles.signInButton, { backgroundColor: Colors.light.lime }]}
             onPress={handleFormSubmit}
@@ -95,11 +95,9 @@ const Login = () => {
           </TouchableOpacity>
           <Text style={styles.orText}>OR</Text>
           <Text style={styles.noAccountText}>Don't have an account ? {` `}
-            <Link href="/(auth)/signup" style={[styles.signUpText, { color: Colors.light.cyan }]}>Sign Up Instead</Link>
+            <Link href="/signup" style={[styles.signUpText, { color: Colors.light.cyan }]}>Sign Up Instead</Link>
           </Text>
         </View>
-
-
       </ScrollView>
     </SafeAreaView>
   )
@@ -110,7 +108,7 @@ export default Login
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    marginVertical: "10%",
+    marginBottom: "10%",
     marginHorizontal: "5%",
     display: "flex",
     justifyContent: "center",
@@ -132,40 +130,23 @@ const styles = StyleSheet.create({
   },
 
   bannerText: {
-    marginTop: 5
+    marginTop: 5,
+    fontSize: 15,
+    fontStyle: "italic",
+    fontWeight: "600",
+    alignSelf: "center"
   },
 
   signInText: {
     fontSize: 24,
     fontWeight: 600,
-    marginTop: 24
+    marginTop: 44
   },
-
-  inputContainer: {
-    marginTop: 16,
-    display: "flex",
-    flexDirection: "column",
-    gap: 5
-  },
-
-  // inputHeading: {
-  //   fontSize: 16
-  // },
-
-  // inputText: {
-  //   borderWidth: 1,
-  //   borderColor: "#D4D7E3",
-  //   borderRadius: 8,
-  //   width: "100%",
-  //   paddingHorizontal: 10,
-  //   paddingVertical: 5,
-  //   fontSize: 16,
-  //   height: 42
-  // },
 
   forgotPassword: {
     alignSelf: "flex-end",
-    paddingHorizontal: 10
+    paddingHorizontal: 10,
+    marginTop:10
 
   },
 
@@ -176,9 +157,9 @@ const styles = StyleSheet.create({
     borderColor: "none",
     borderRadius: 10
   },
+
   signInButtonText: {
     fontSize: 20,
-    flex: 1,
     alignSelf: "center"
   },
 

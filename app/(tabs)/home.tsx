@@ -6,7 +6,7 @@ const Home = () => {
     <SafeAreaView>
           <ScrollView>
             <View style = {styles.mainContainer}>
-              <Text>Log in Page</Text>
+              <Text>Home Page</Text>
             </View>
           </ScrollView>
    </SafeAreaView>

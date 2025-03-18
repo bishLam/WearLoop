@@ -8,11 +8,12 @@ type inputProps = {
   handleChangeText: (val:string) => void
   secureText: boolean
   keyboardType: KeyboardTypeOptions,
+  additionalStyles:any
 }
 
-const CustomInput: React.FC<inputProps> = ({title, error, value, handleChangeText, secureText, keyboardType}) => {
+const CustomInput: React.FC<inputProps> = ({title, error, value, handleChangeText, secureText, keyboardType, additionalStyles}) => {
   return (
-    <View style={styles.inputContainer}>
+    <View style={[styles.inputContainer, additionalStyles]}>
       <Text style={[styles.inputHeading]}> {title} </Text>
       <TextInput
         style={[styles.inputText, error && { borderColor: "red" }]}
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     display: "flex",
     flexDirection: "column",
-    flex:1,
+    gap:10
   },
 
   inputText: {
@@ -44,8 +45,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     fontSize: 16,
-    height: 42,
-    flex:1
+    minHeight: 42,
+    width:"100%"
   },
 
   inputHeading: {
