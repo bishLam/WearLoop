@@ -1,15 +1,105 @@
-import { StyleSheet, ScrollView, Text, View } from 'react-native'
-import React from 'react'
+import { StyleSheet, ScrollView, Text, View, Image, TextInput, TouchableOpacity } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import {  } from 'react-native'
+const logo = require("../../assets/icons/logo.png"); //require ensures the import correctly
+import { Colors } from '@/constants/Colors';
+import { Link } from "expo-router"
+
+import CustomInput from "../../components/CustomInput"
 
 const Login = () => {
+  const [form, setForm] = useState({
+    email: "",
+    password: ""
+  })
+
+
+  const [error, setError] = useState("");
+  const [errorSpot, setErrorSpot] = useState({
+    email: false,
+    password: false
+  })
+  const handleFormSubmit = () => {
+    if (form.email.trim() == "") {
+      setError("Email field is required")
+      setErrorSpot({ password: false, email: true })
+      return
+    }
+
+    const validEmail = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/.test(form.email)
+    if (!validEmail) {
+      setError("Email is not in correct format")
+      setErrorSpot({ password: false, email: true })
+      return
+    }
+
+    if (form.password.trim() == "") {
+      setError("Password field is required")
+      setErrorSpot({ email: false, password: true })
+      return
+    }
+
+    if (form.password.length < 6) {
+      setError("Password must at least be 6 characters")
+      setErrorSpot({ email: false, password: true })
+      return
+    }
+
+    // if all these conditions are met we can verify the input strings are OK
+    setError("")
+    setErrorSpot({ email: false, password: false })
+
+
+
+  }
+
   return (
     <SafeAreaView>
       <ScrollView>
-        <View style = {styles.mainContainer}>
-          <Text>Log in Page</Text>
+        <View style={styles.mainContainer}>
+          <Image source={logo} style={styles.logo} />
+          <Text style={styles.welcomeText}>Welcome back to Wearloop</Text>
+          <Text style={[styles.signInText, { color: Colors.light.cyan }]}> Sign In </Text>
+          <CustomInput
+            title = "Email"
+            error={errorSpot.email}
+            value={form.email}
+            handleChangeText={(val) => setForm({ ...form, email: val })}
+            secureText={false}
+            keyboardType={'email-address'} />
+
+          <View style={[styles.inputContainer]}>
+
+          <CustomInput
+            title = "Password"
+            error={errorSpot.password}
+            value={form.password}
+            handleChangeText={(val) => setForm({ ...form, password: val })}
+            secureText={true}
+            keyboardType={'default'} />
+
+            {error &&
+              <Text style={{ color: "red" }}>{error}</Text>
+            }
+
+            {/* This needs to be changed so that it takes us to forgot password page */}
+            <Link style={[styles.forgotPassword, { color: Colors.light.cyan }]} href="/signup">
+              Forgot Password ?
+            </Link>
+          </View>
+          <TouchableOpacity
+            style={[styles.signInButton, { backgroundColor: Colors.light.lime }]}
+            onPress={handleFormSubmit}
+          >
+            <Text style={styles.signInButtonText}>Sign In</Text>
+          </TouchableOpacity>
+          <Text style={styles.orText}>OR</Text>
+          <Text style={styles.noAccountText}>Don't have an account ? {` `}
+            <Link href="/(auth)/signup" style={[styles.signUpText, { color: Colors.light.cyan }]}>Sign Up Instead</Link>
+          </Text>
         </View>
+
+
       </ScrollView>
     </SafeAreaView>
   )
@@ -18,10 +108,95 @@ const Login = () => {
 export default Login
 
 const styles = StyleSheet.create({
-  mainContainer : {
-    // flex:1,
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center"
+  mainContainer: {
+    flex: 1,
+    marginVertical: "10%",
+    marginHorizontal: "5%",
+    display: "flex",
+    justifyContent: "center",
+    alignContent: "center",
+    marginTop: 10
+  },
+
+  logo: {
+    height: 120,
+    resizeMode: "contain",
+    alignSelf: "center"
+  },
+
+  welcomeText: {
+    marginTop: 44,
+    fontSize: 28,
+    fontWeight: 600,
+    alignSelf: "center"
+  },
+
+  bannerText: {
+    marginTop: 5
+  },
+
+  signInText: {
+    fontSize: 24,
+    fontWeight: 600,
+    marginTop: 24
+  },
+
+  inputContainer: {
+    marginTop: 16,
+    display: "flex",
+    flexDirection: "column",
+    gap: 5
+  },
+
+  // inputHeading: {
+  //   fontSize: 16
+  // },
+
+  // inputText: {
+  //   borderWidth: 1,
+  //   borderColor: "#D4D7E3",
+  //   borderRadius: 8,
+  //   width: "100%",
+  //   paddingHorizontal: 10,
+  //   paddingVertical: 5,
+  //   fontSize: 16,
+  //   height: 42
+  // },
+
+  forgotPassword: {
+    alignSelf: "flex-end",
+    paddingHorizontal: 10
+
+  },
+
+  signInButton: {
+    width: "100%",
+    marginTop: 24,
+    paddingVertical: 10,
+    borderColor: "none",
+    borderRadius: 10
+  },
+  signInButtonText: {
+    fontSize: 20,
+    flex: 1,
+    alignSelf: "center"
+  },
+
+  orText: {
+    alignSelf: "center",
+    fontSize: 18,
+    marginTop: 18
+  },
+
+  noAccountText: {
+    fontSize: 20,
+    alignSelf: "center",
+    marginTop: 10
+  },
+
+  signUpText: {
+    fontSize: 20,
+    fontWeight: "bold"
   }
+
 })
