@@ -3,30 +3,32 @@ import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 const logo = require("../../assets/icons/logo.png"); //require ensures the import correctly
 import { Colors } from '@/constants/Colors';
-import { Link } from "expo-router"
+import { Link, router } from "expo-router"
 
 import CustomInput from "../../components/CustomInput"
+import { useUser } from '@/contexts/UserAuth';
 
 const Login = () => {
+  const authContext = useUser();
   const [form, setForm] = useState({
     email: "",
     password: ""
   })
-
 
   const [error, setError] = useState("");
   const [errorSpot, setErrorSpot] = useState({
     email: false,
     password: false
   })
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     if (form.email.trim() == "") {
       setError("Email field is required")
       setErrorSpot({ password: false, email: true })
       return
     }
 
-    const validEmail = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/.test(form.email)
+    const regx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const validEmail = regx.test(form.email)
     if (!validEmail) {
       setError("Email is not in correct format")
       setErrorSpot({ password: false, email: true })
@@ -48,7 +50,30 @@ const Login = () => {
     // if all these conditions are met we can verify the input strings are OK
     setError("")
     setErrorSpot({ email: false, password: false })
+
+    try{
+
+      await authContext?.login(form.email, form.password)
+      console.log(authContext?.current?.email)
+    }
+
+    catch(error){
+      setError(`${error}`)
+    }
+
   }
+
+  const handleLogOut = async () => {
+    await authContext?.logout();
+  }
+
+
+  useEffect(() => {
+    if(authContext?.current){
+      console.log("User logged in already. Redirecting them to the home page")
+      {router.replace("/home")}
+    }
+  }, [])
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

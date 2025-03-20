@@ -6,7 +6,11 @@ import { Colors } from '@/constants/Colors';
 import { Link } from "expo-router"
 import CustomInput from '@/components/CustomInput';
 
+import { useUser } from '@/contexts/UserAuth';
+
 const Login = () => {
+  const authContext = useUser();
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -42,7 +46,7 @@ const Login = () => {
 
 
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
 
 
     if (form.firstName.trim() == "") {
@@ -66,7 +70,8 @@ const Login = () => {
       return
     }
 
-    const validEmail = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/.test(form.email)
+    const regx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const validEmail = regx.test(form.email)
     if (!validEmail) {
       setError("Email is not in correct format")
       setOtherErrorsToFalse()
@@ -81,8 +86,8 @@ const Login = () => {
       return
     }
 
-    if (form.password.length < 6) {
-      setError("Passwords should at least me 6 characters")
+    if (form.password.length < 8) {
+      setError("Passwords should at least be 8 characters")
       setOtherErrorsToFalse()
       setErrorSpot((prev) => ({ ...prev, password: true }))
       return
@@ -100,6 +105,14 @@ const Login = () => {
     setError("")
 
     // if all these conditions are met we can verify the input strings are OK
+
+    try{
+      await authContext?.signup(form.email, form.password)
+      }
+  
+      catch(error){
+        setError(`${error}`)
+      }
 
 
   }
