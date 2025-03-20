@@ -16,7 +16,7 @@ interface userContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>
   signup: (email: string, password: string) => Promise<void>
-  verifyEmail: (userID:string, password:string) => Promise<void>
+  checkUserEmail : (email:string) => Promise <void>
 }
 
 type childrenType = {
@@ -72,9 +72,11 @@ const UserProvider = ({ children }: childrenType) => {
     router.replace("/")
   }
 
-  const verifyEmail = async (userID:string, secret:string) => {
-    await account.updateVerification(userID, secret)
-    console.log("User verified successfully")
+  //this will be used to check if the user already exists in the database
+  const checkUserEmail = async (email:string) => {
+    // const user = account.s
+    // const userEmail 
+    console.log("User does not exist")
   }
 
   const init = async () => {
@@ -92,7 +94,7 @@ const UserProvider = ({ children }: childrenType) => {
   }, [])
 
   return (
-    <UserContext.Provider value={{ current: user, login, logout, signup, verifyEmail }}>
+    <UserContext.Provider value={{ current: user, login, logout, signup, checkUserEmail }}>
       {children}
     </UserContext.Provider>
   )
