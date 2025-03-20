@@ -62,7 +62,6 @@ const UserProvider = ({ children }: childrenType) => {
       console.log("Session terminated")
       throw new Error("Verify email to continue")
     }
-
   }
 
   const logout = async () => {
