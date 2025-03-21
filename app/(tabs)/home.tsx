@@ -2,13 +2,24 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { useUser } from '@/contexts/UserAuth'
+import { useEffect } from 'react';
+import { router } from 'expo-router';
 
 const Home = () => {
 
   const userAuth = useUser();
   const handleLogout = async () => {
     await userAuth?.logout();
+    router.replace("/")
   }
+
+  useEffect(()=>{
+    console.log(
+      "Page reloaded"
+    )
+  } ,
+  [userAuth?.current]
+)
 
   return (
     <SafeAreaView>
@@ -16,7 +27,7 @@ const Home = () => {
         <View style={styles.mainContainer}>
           <TouchableOpacity onPress={handleLogout}>
             <Text>
-              Log out from the {userAuth?.current?.email}
+              Log out from the app ? {userAuth?.current?.email}
             </Text>
           </TouchableOpacity>
         </View>

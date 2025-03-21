@@ -11,6 +11,7 @@ import { useUser } from '@/contexts/UserAuth';
 const Login = () => {
   const authContext = useUser();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -106,94 +107,105 @@ const Login = () => {
 
     // if all these conditions are met we can verify the input strings are OK
 
-    try{
+    try {
+      setIsLoading(true)
       await authContext?.signup(form.email, form.password)
-      }
-  
-      catch(error){
-        setError(`${error}`)
-      }
+    }
+
+    catch (error) {
+      setError(`${error}`)
+    }
+
+    finally {
+      setIsLoading(false)
+    }
 
 
   }
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style = {{flex:1}}>
-        <ScrollView contentContainerStyle = {{flex:1}}>
-          <View style={styles.mainContainer}>
-            <Image source={logo} style={styles.logo} />
-            <Text style={styles.welcomeText}>Welcome to Wearloop</Text>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={{ flex: 1 }}>\
 
-            <Text style={[styles.signInText, { color: Colors.light.cyan }]}> Sign In </Text>
-            <View style={styles.namesInputContainer}>
+          {isLoading ?
+            <Text>Signing you up...</Text> :
+            <View style={styles.mainContainer}>
+              <Image source={logo} style={styles.logo} />
+              <Text style={styles.welcomeText}>Welcome to Wearloop</Text>
 
-              <CustomInput
-                title="First Name"
-                error={errorSpot.firstName}
-                value={form.firstName}
-                handleChangeText={(val) => setForm({ ...form, firstName: val })}
-                secureText={false}
-                keyboardType={'default'} 
-                additionalStyles={{flex:1}}
+              <Text style={[styles.signInText, { color: Colors.light.cyan }]}> Sign In </Text>
+              <View style={styles.namesInputContainer}>
+
+                <CustomInput
+                  title="First Name"
+                  error={errorSpot.firstName}
+                  value={form.firstName}
+                  handleChangeText={(val) => setForm({ ...form, firstName: val })}
+                  secureText={false}
+                  keyboardType={'default'}
+                  additionalStyles={{ flex: 1 }}
                 />
 
-              <CustomInput
-                title="Last Name"
-                error={errorSpot.lastName}
-                value={form.lastName}
-                handleChangeText={(val) => setForm({ ...form, lastName: val })}
-                secureText={false}
-                keyboardType={'default'} 
-                additionalStyles={{flex:1}}
+                <CustomInput
+                  title="Last Name"
+                  error={errorSpot.lastName}
+                  value={form.lastName}
+                  handleChangeText={(val) => setForm({ ...form, lastName: val })}
+                  secureText={false}
+                  keyboardType={'default'}
+                  additionalStyles={{ flex: 1 }}
                 />
+              </View>
+
+
+              <CustomInput
+                title="Email"
+                error={errorSpot.email}
+                value={form.email}
+                handleChangeText={(val) => setForm({ ...form, email: val })}
+                secureText={false}
+                keyboardType={'email-address'}
+                additionalStyles={null}
+              />
+
+              <CustomInput
+                title='Password'
+                error={errorSpot.password}
+                value={form.password}
+                handleChangeText={(val) => setForm({ ...form, password: val })}
+                secureText={true}
+                keyboardType={'default'}
+                additionalStyles={null}
+              />
+
+              <CustomInput
+                title='Repeat Password'
+                error={errorSpot.repeatPassword}
+                value={form.repeatPassword}
+                handleChangeText={(val) => setForm({ ...form, repeatPassword: val })}
+                secureText={true}
+                keyboardType={'default'}
+                additionalStyles={null}
+              />
+
+              {error &&
+                <Text style={{ color: "red", marginTop: 5 }}>{error}</Text>
+              }
+              <TouchableOpacity
+                style={[styles.signInButton, { backgroundColor: Colors.light.lime }]}
+                onPress={handleFormSubmit}
+              >
+                <Text style={styles.signInButtonText}>Sign Up</Text>
+              </TouchableOpacity>
+              <Text style={styles.orText}>OR</Text>
+              <Text style={styles.noAccountText}>Already have an account ? {` `}
+                <Link href="/" style={[styles.signUpText, { color: Colors.light.cyan }]}>Sign In Instead</Link>
+              </Text>
             </View>
+          }
 
 
-            <CustomInput
-              title="Email"
-              error={errorSpot.email}
-              value={form.email}
-              handleChangeText={(val) => setForm({ ...form, email: val })}
-              secureText={false}
-              keyboardType={'email-address'}
-              additionalStyles={null}
-            />
-
-            <CustomInput
-              title='Password'
-              error={errorSpot.password}
-              value={form.password}
-              handleChangeText={(val) => setForm({ ...form, password: val })}
-              secureText={true}
-              keyboardType={'default'}
-              additionalStyles={null}
-            />
-
-            <CustomInput
-              title='Repeat Password'
-              error={errorSpot.repeatPassword}
-              value={form.repeatPassword}
-              handleChangeText={(val) => setForm({ ...form, repeatPassword: val })}
-              secureText={true}
-              keyboardType={'default'}
-              additionalStyles={null}
-            />
-
-            {error &&
-              <Text style={{ color: "red", marginTop: 5 }}>{error}</Text>
-            }
-            <TouchableOpacity
-              style={[styles.signInButton, { backgroundColor: Colors.light.lime }]}
-              onPress={handleFormSubmit}
-            >
-              <Text style={styles.signInButtonText}>Sign Up</Text>
-            </TouchableOpacity>
-            <Text style={styles.orText}>OR</Text>
-            <Text style={styles.noAccountText}>Already have an account ? {` `}
-              <Link href="/" style={[styles.signUpText, { color: Colors.light.cyan }]}>Sign In Instead</Link>
-            </Text>
-          </View>
 
 
         </ScrollView>
@@ -212,7 +224,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignContent: "center",
     marginTop: 10,
-    flex:1
+    flex: 1
   },
 
   logo: {
@@ -241,8 +253,8 @@ const styles = StyleSheet.create({
   namesInputContainer: {
     display: "flex",
     flexDirection: "row",
-    justifyContent:"space-between",
-    width:"100%",
+    justifyContent: "space-between",
+    width: "100%",
     gap: 10
   },
 
@@ -259,7 +271,7 @@ const styles = StyleSheet.create({
     borderColor: "none",
     borderRadius: 10
   },
-  
+
   signInButtonText: {
     fontSize: 20,
     alignSelf: "center"

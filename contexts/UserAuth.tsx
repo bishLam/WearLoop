@@ -39,17 +39,15 @@ const UserProvider = ({ children }: childrenType) => {
     await account.create(ID.unique(), email, password)
     //we need to create a session initially to send the verification link to that user
     await account.createEmailPasswordSession(email, password)
-
-    //change the below line once you have the app deployed in the app store
     await account.createVerification("https://verifywearloop.netlify.app/") 
     await account.deleteSession("current")
-    Toast("A verification link has been sent to your email. Verify first to log in to your account")
+    Toast("A verification link has been sent to your email. Verify email to log in to your account")
     router.replace("/")
     await login(email, password)
   }
 
   const login = async (email: string, password: string) => {
-    // await logout();
+    // await logout(); //remove this later
     await account.createEmailPasswordSession(email, password)
     const loggedInUser = await account.get();
     if (loggedInUser.emailVerification) {
@@ -65,11 +63,13 @@ const UserProvider = ({ children }: childrenType) => {
   }
 
   const logout = async () => {
-    console.log(`${user?.email}`)
     await account.deleteSession("current")
-    console.log("User logged out")
-    setUser(null)
+    console.log(`${user?.email} logged out`)
     router.replace("/")
+    router.dismissAll()
+    
+    setUser(null)
+
   }
 
   //this will be used to check if the user already exists in the database

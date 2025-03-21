@@ -10,6 +10,7 @@ import { useUser } from '@/contexts/UserAuth';
 
 const Login = () => {
   const authContext = useUser();
+  const [isLoading, setIsLoading] = useState(false)
   const [form, setForm] = useState({
     email: "",
     password: ""
@@ -51,78 +52,86 @@ const Login = () => {
     setError("")
     setErrorSpot({ email: false, password: false })
 
-    try{
-
+    try {
+      setIsLoading(true)
       await authContext?.login(form.email, form.password)
       console.log(authContext?.current?.email)
     }
 
-    catch(error){
+    catch (error) {
       setError(`${error}`)
+    }
+    finally {
+      setIsLoading(false)
     }
 
   }
 
-  const handleLogOut = async () => {
-    await authContext?.logout();
-  }
-
 
   useEffect(() => {
-    if(authContext?.current){
+    if (authContext?.current) {
       console.log("User logged in already. Redirecting them to the home page")
-      {router.replace("/home")}
+      { router.replace("/home") }
     }
   }, [])
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ flex: 1 }}>
-        <View style={styles.mainContainer}>
-          <Image source={logo} style={styles.logo} />
-          <Text style={styles.welcomeText}>Welcome back to Wearloop</Text>
-          <Text style={styles.bannerText}>Where clothes dream second life, and you become the reason</Text>
-          <Text style={[styles.signInText, { color: Colors.light.cyan }]}> Sign In </Text>
-          <CustomInput
-            title="Email"
-            error={errorSpot.email}
-            value={form.email}
-            handleChangeText={(val) => setForm({ ...form, email: val })}
-            secureText={false}
-            keyboardType={'email-address'} 
-            additionalStyles={null}
-            />
-            
-          <CustomInput
-            title="Password"
-            error={errorSpot.password}
-            value={form.password}
-            handleChangeText={(val) => setForm({ ...form, password: val })}
-            secureText={true}
-            keyboardType={'default'} 
-            additionalStyles={null}
-            />
-
-          {error &&
-            <Text style={{ color: "red" }}>{error}</Text>
-          }
-
-          {/* This needs to be changed so that it takes us to forgot password page */}
-          <Link style={[styles.forgotPassword, { color: Colors.light.cyan }]} href="/forgotPassword">
-            Forgot Password ?
-          </Link>
-
-          <TouchableOpacity
-            style={[styles.signInButton, { backgroundColor: Colors.light.lime }]}
-            onPress={handleFormSubmit}
-          >
-            <Text style={styles.signInButtonText}>Sign In</Text>
-          </TouchableOpacity>
-          <Text style={styles.orText}>OR</Text>
-          <Text style={styles.noAccountText}>Don't have an account ? {` `}
-            <Link href="/signup" style={[styles.signUpText, { color: Colors.light.cyan }]}>Sign Up Instead</Link>
+        {
+          isLoading ? <Text  style={styles.mainContainer}>
+            Signing you in. Won't be a moment.....
           </Text>
-        </View>
+            :
+
+            <View style={styles.mainContainer}>
+              <Image source={logo} style={styles.logo} />
+              <Text style={styles.welcomeText}>Welcome back to Wearloop</Text>
+              <Text style={styles.bannerText}>Where clothes dream second life, and you become the reason</Text>
+              <Text style={[styles.signInText, { color: Colors.light.cyan }]}> Sign In </Text>
+              <CustomInput
+                title="Email"
+                error={errorSpot.email}
+                value={form.email}
+                handleChangeText={(val) => setForm({ ...form, email: val })}
+                secureText={false}
+                keyboardType={'email-address'}
+                additionalStyles={null}
+              />
+
+              <CustomInput
+                title="Password"
+                error={errorSpot.password}
+                value={form.password}
+                handleChangeText={(val) => setForm({ ...form, password: val })}
+                secureText={true}
+                keyboardType={'default'}
+                additionalStyles={null}
+              />
+
+              {error &&
+                <Text style={{ color: "red" }}>{error}</Text>
+              }
+
+              {/* This needs to be changed so that it takes us to forgot password page */}
+              <Link style={[styles.forgotPassword, { color: Colors.light.cyan }]} href="/forgotPassword">
+                Forgot Password ?
+              </Link>
+
+              <TouchableOpacity
+                style={[styles.signInButton, { backgroundColor: Colors.light.lime }]}
+                onPress={handleFormSubmit}
+              >
+                <Text style={styles.signInButtonText}>Sign In</Text>
+              </TouchableOpacity>
+              <Text style={styles.orText}>OR</Text>
+              <Text style={styles.noAccountText}>Don't have an account ? {` `}
+                <Link href="/signup" style={[styles.signUpText, { color: Colors.light.cyan }]}>Sign Up Instead</Link>
+              </Text>
+            </View>
+
+        }
+
       </ScrollView>
     </SafeAreaView>
   )
@@ -171,7 +180,7 @@ const styles = StyleSheet.create({
   forgotPassword: {
     alignSelf: "flex-end",
     paddingHorizontal: 10,
-    marginTop:10
+    marginTop: 10
 
   },
 
