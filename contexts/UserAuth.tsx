@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import { useState, useEffect, useContext, createContext } from 'react'
 
-import { account, database } from "../lib/appwrite"
+import { account, database, addUserToCollection } from "../lib/appwrite"
 import { ID, Models } from 'react-native-appwrite'
 import { router } from 'expo-router'
 import Toast from '@/components/toast'
@@ -15,8 +15,8 @@ interface userContextType {
   current: userType,
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>
-  signup: (email: string, password: string) => Promise<void>
-  checkUserEmail : (email:string) => Promise <void>
+  signup: (email: string, password: string, firstName:string, lastName:string) => Promise<void>
+  checkUserEmail: (email: string) => Promise<void>
 }
 
 type childrenType = {
@@ -35,27 +35,29 @@ const UserProvider = ({ children }: childrenType) => {
   const [user, setUser] = useState<userType | null>(null)
 
 
-  const signup = async (email: string, password: string) => {
+  const signup = async (email: string, password: string, firstName: string, lastName: string) => {
     await account.create(ID.unique(), email, password)
     //we need to create a session initially to send the verification link to that user
     await account.createEmailPasswordSession(email, password)
-    await account.createVerification("https://verifywearloop.netlify.app/") 
+    await account.createVerification("https://verifywearloop.netlify.app/")
     await account.deleteSession("current")
     Toast("A verification link has been sent to your email. Verify email to log in to your account")
     router.replace("/")
-    await login(email, password)
+    await login(email, password, firstName, lastName)
   }
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, firstName?: string, lastName?: string) => {
     // await logout(); //remove this later
     await account.createEmailPasswordSession(email, password)
     const loggedInUser = await account.get();
     if (loggedInUser.emailVerification) {
+      //creating a user document with their names
+      { firstName && lastName && await addUserToCollection(firstName, lastName, email) }
       const loggedInUser = await account.get();
       setUser(loggedInUser)
       router.replace("/home")
     }
-    else{
+    else {
       await account.deleteSession("current")
       console.log("Session terminated")
       throw new Error("Verify email to continue")
@@ -65,15 +67,15 @@ const UserProvider = ({ children }: childrenType) => {
   const logout = async () => {
     await account.deleteSession("current")
     console.log(`${user?.email} logged out`)
-    router.replace("/")
+    // router.replace("/")
     router.dismissAll()
-    
+
     setUser(null)
 
   }
 
   //this will be used to check if the user already exists in the database
-  const checkUserEmail = async (email:string) => {
+  const checkUserEmail = async (email: string) => {
     // const user = account.s
     // const userEmail 
     console.log("User does not exist")

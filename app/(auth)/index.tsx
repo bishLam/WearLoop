@@ -83,7 +83,6 @@ const Login = () => {
             Signing you in. Won't be a moment.....
           </Text>
             :
-
             <View style={styles.mainContainer}>
               <Image source={logo} style={styles.logo} />
               <Text style={styles.welcomeText}>Welcome back to Wearloop</Text>

@@ -109,11 +109,12 @@ const Login = () => {
 
     try {
       setIsLoading(true)
-      await authContext?.signup(form.email, form.password)
+      await authContext?.signup(form.email, form.password, form.firstName, form.lastName)
     }
 
     catch (error) {
       setError(`${error}`)
+      console.log(error)
     }
 
     finally {
@@ -126,8 +127,7 @@ const Login = () => {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ flex: 1 }}>\
-
+        <ScrollView contentContainerStyle={{ flex: 1 }}>
           {isLoading ?
             <Text>Signing you up...</Text> :
             <View style={styles.mainContainer}>
