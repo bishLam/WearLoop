@@ -69,17 +69,17 @@ const Login = () => {
 
 
   useEffect(() => {
-    if (authContext?.current) {
+    if ( authContext?.current) {
       console.log("User logged in already. Redirecting them to the home page")
       { router.replace("/home") }
     }
-  }, [])
+  }, [authContext?.current])
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ flex: 1 }}>
         {
-          isLoading ? <Text  style={styles.mainContainer}>
+          isLoading ? <Text style={styles.mainContainer}>
             Signing you in. Won't be a moment.....
           </Text>
             :

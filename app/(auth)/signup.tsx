@@ -109,6 +109,7 @@ const Login = () => {
 
     try {
       setIsLoading(true)
+      // await authContext?.logout();
       await authContext?.signup(form.email, form.password, form.firstName, form.lastName)
     }
 

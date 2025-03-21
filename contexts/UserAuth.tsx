@@ -36,14 +36,16 @@ const UserProvider = ({ children }: childrenType) => {
 
 
   const signup = async (email: string, password: string, firstName: string, lastName: string) => {
-    await account.create(ID.unique(), email, password)
+    await account.create(ID.unique(), email, password, firstName)
     //we need to create a session initially to send the verification link to that user
     await account.createEmailPasswordSession(email, password)
     await account.createVerification("https://verifywearloop.netlify.app/")
+    // await account.updatePrefs({firstName, lastName}) //this is something we can store when we are signed up and could be used anywhere to get tjat info with just calling .prefs method
     await account.deleteSession("current")
+    await addUserToCollection(firstName, lastName, email)
     Toast("A verification link has been sent to your email. Verify email to log in to your account")
-    router.replace("/")
     await login(email, password, firstName, lastName)
+    router.replace("/")
   }
 
   const login = async (email: string, password: string, firstName?: string, lastName?: string) => {
@@ -52,14 +54,12 @@ const UserProvider = ({ children }: childrenType) => {
     const loggedInUser = await account.get();
     if (loggedInUser.emailVerification) {
       //creating a user document with their names
-      { firstName && lastName && await addUserToCollection(firstName, lastName, email) }
-      const loggedInUser = await account.get();
       setUser(loggedInUser)
       router.replace("/home")
     }
     else {
       await account.deleteSession("current")
-      console.log("Session terminated")
+      console.log("User email is not verified")
       throw new Error("Verify email to continue")
     }
   }
@@ -67,7 +67,7 @@ const UserProvider = ({ children }: childrenType) => {
   const logout = async () => {
     await account.deleteSession("current")
     console.log(`${user?.email} logged out`)
-    // router.replace("/")
+    router.replace("/")
     router.dismissAll()
 
     setUser(null)

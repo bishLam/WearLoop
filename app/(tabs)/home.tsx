@@ -10,12 +10,11 @@ const Home = () => {
   const userAuth = useUser();
   const handleLogout = async () => {
     await userAuth?.logout();
-    router.replace("/")
   }
 
   useEffect(()=>{
     console.log(
-      "Page reloaded"
+      "Home page is reloaded on current change on value user"
     )
   } ,
   [userAuth?.current]
