@@ -2,12 +2,18 @@ import { StyleSheet, Text,  Image, TextInput,
   View, ScrollView, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useWindowDimensions } from 'react-native';
+import ProfileSlider from '@/components/ProfileSlider';
 
 import { useUser } from '@/contexts/UserAuth'
 import { useEffect } from 'react';
+import { useState } from 'react';
+
 import { router } from 'expo-router';
 import React from 'react';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+
+//testing
+import { database, storage, config } from '@/lib/appwrite';
 
 
 const Home = () => {
@@ -16,6 +22,8 @@ const Home = () => {
   const { width } = useWindowDimensions();
 
   const isMobile = width < 768;
+
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const handleLogout = async () => {
     await userAuth?.logout();
@@ -52,8 +60,8 @@ const Home = () => {
             />
             <Text style={styles.welcomeText}>Welcome back</Text>
           </View>
-          <TouchableOpacity onPress={handleLogout}>
-            <Image 
+          <TouchableOpacity onPress={() => setShowProfileModal(true)}>
+          <Image 
                 source={require('../../assets/images/dummy profile.png')} 
                 style={styles.profile}
             />
@@ -113,6 +121,20 @@ const Home = () => {
 
       
     </ScrollView>
+
+    <ProfileSlider
+        visible={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onLogout={async () => {
+          setShowProfileModal(false);
+          await handleLogout();
+        }}
+      /> 
+
+
+
+
+
   </SafeAreaView>
   )
 }

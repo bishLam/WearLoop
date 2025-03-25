@@ -13,6 +13,8 @@ const HomeLayout = () => {
       <Stack.Screen name='profile' options={{headerShown:false}} />
       <Stack.Screen name='clothDetails' options={{headerShown:false}} />
     </Stack> */}
+
+    
       <Tabs screenOptions={{ tabBarStyle:{height:"auto", alignContent:"center", borderTopRightRadius:10, borderTopStartRadius:10},
        headerShown: false, 
        tabBarActiveTintColor: Colors.light.cyan,
