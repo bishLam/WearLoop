@@ -109,7 +109,7 @@ const EditProfile = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ paddingHorizontal: "5%" }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical:"1%" }}>
         <Pressable onPress={handleSavePressed} style={[!saveButtonActive && styles.saveButtonDefault, saveButtonActive && styles.saveButtonActive]}>
           <Text style={[!saveButtonActive && styles.saveTextDefault, saveButtonActive && styles.saveTextActive]}>Save</Text>
         </Pressable>
@@ -166,16 +166,16 @@ const styles = StyleSheet.create({
     backgroundColor: "gray",
     alignSelf: "flex-end",
     borderRadius: 9,
-    paddingVertical: 3,
-    paddingHorizontal: 9
+    paddingVertical: 7,
+    paddingHorizontal: 15
   },
 
   saveButtonActive: {
     backgroundColor: "red",
     alignSelf: "flex-end",
     borderRadius: 9,
-    paddingVertical: 3,
-    paddingHorizontal: 9
+    paddingVertical: 7,
+    paddingHorizontal: 15
   },
 
   saveTextDefault: {

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {Colors} from "../constants/Colors"
+import { Colors } from "../constants/Colors"
 import {
   Modal,
   View,
@@ -21,29 +21,30 @@ type Props = {
   onLogout: () => void;
 };
 
-const handleSliderButtonPress = async (buttonName:string) => {
-  if(buttonName === "profile"){
-    router.replace("/profile")
-    return
-  }
-
-  if(buttonName === "settings" || buttonName === "rateUs"){
-    router.replace("/+not-found")
-    return
-  }
-
-  if(buttonName==="logout"){
-    await useUser()?.logout();
-    return
-  }
-
-
-
-}
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const ProfileSlider = ({ visible, onClose, onLogout }: Props) => {
+
+  const userAuth = useUser();
+  const handleSliderButtonPress = async (buttonName: string) => {
+    if (buttonName === "profile") {
+      router.replace("/profile")
+      return
+    }
+
+    if (buttonName === "settings" || buttonName === "rateUs") {
+      router.replace("/+not-found")
+      return
+    }
+
+    if (buttonName === "logout") {
+      await userAuth?.logout();
+      return
+    }
+  }
+
+
   const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
 
   // Animate in and out from right to left
@@ -84,20 +85,20 @@ const ProfileSlider = ({ visible, onClose, onLogout }: Props) => {
           </View>
 
           {/* Logout Button */}
-          <TouchableOpacity style={[styles.otherButtons, {backgroundColor:Colors.light.lime}]} onPress={() => handleSliderButtonPress("profile")}>
+          <TouchableOpacity style={[styles.otherButtons, { backgroundColor: Colors.light.lime }]} onPress={() => handleSliderButtonPress("profile")}>
             <Text style={styles.logoutText}>Profile</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.otherButtons, {backgroundColor:Colors.light.lime}]} onPress={() => handleSliderButtonPress("settings")}>
+          <TouchableOpacity style={[styles.otherButtons, { backgroundColor: Colors.light.lime }]} onPress={() => handleSliderButtonPress("settings")}>
             <Text style={styles.logoutText}>Settings</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.otherButtons, {backgroundColor:Colors.light.lime}]} onPress={() => handleSliderButtonPress("rateUs")}>
+          <TouchableOpacity style={[styles.otherButtons, { backgroundColor: Colors.light.lime }]} onPress={() => handleSliderButtonPress("rateUs")}>
             <Text style={styles.logoutText}>Rate us</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.logoutBtn, {backgroundColor:"red"}]} onPress={() => handleSliderButtonPress("logout")}>
+          <TouchableOpacity style={[styles.logoutBtn, { backgroundColor: "red" }]} onPress={() => handleSliderButtonPress("logout")}>
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
 
-         
+
         </Animated.View>
       </Pressable>
     </Modal>
@@ -142,9 +143,9 @@ const styles = StyleSheet.create({
   otherButtons: {
     backgroundColor: '#e74c3c',
     paddingVertical: 12,
-    borderRadius:8,
-    marginVertical:5,
-    alignItems:"center"
+    borderRadius: 8,
+    marginVertical: 5,
+    alignItems: "center"
   },
   logoutBtn: {
     backgroundColor: '#e74c3c',
@@ -157,5 +158,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
- 
+
 });

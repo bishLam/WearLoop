@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StatusBar, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { Stack } from 'expo-router'
 
 import UserProvider from '@/contexts/UserAuth'
+import { canGoBack, goBack } from 'expo-router/build/global-state/routing'
 
 const RootLayout = () => {
   return (
@@ -14,6 +15,9 @@ const RootLayout = () => {
         <Stack.Screen name='+not-found' options={{ headerShown: false }} />
 
       </Stack>
+      <StatusBar backgroundColor="gray"
+        barStyle="light-content"
+        />
     </UserProvider>
   )
 }
