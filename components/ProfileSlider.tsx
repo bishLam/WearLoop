@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import {Colors} from "../constants/Colors"
 import {
   Modal,
   View,
@@ -10,12 +11,35 @@ import {
   Pressable,
 } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { router } from 'expo-router';
+
+import { useUser } from '@/contexts/UserAuth';
 
 type Props = {
   visible: boolean;
   onClose: () => void;
   onLogout: () => void;
 };
+
+const handleSliderButtonPress = async (buttonName:string) => {
+  if(buttonName === "profile"){
+    router.replace("/profile")
+    return
+  }
+
+  if(buttonName === "settings" || buttonName === "rateUs"){
+    router.replace("/+not-found")
+    return
+  }
+
+  if(buttonName==="logout"){
+    await useUser()?.logout();
+    return
+  }
+
+
+
+}
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -27,13 +51,13 @@ const ProfileSlider = ({ visible, onClose, onLogout }: Props) => {
     if (visible) {
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 300,
+        duration: 500,
         useNativeDriver: true,
       }).start();
     } else {
       Animated.timing(slideAnim, {
         toValue: SCREEN_WIDTH,
-        duration: 300,
+        duration: 600,
         useNativeDriver: true,
       }).start();
     }
@@ -60,7 +84,16 @@ const ProfileSlider = ({ visible, onClose, onLogout }: Props) => {
           </View>
 
           {/* Logout Button */}
-          <TouchableOpacity style={styles.logoutBtn} onPress={onLogout}>
+          <TouchableOpacity style={[styles.otherButtons, {backgroundColor:Colors.light.lime}]} onPress={() => handleSliderButtonPress("profile")}>
+            <Text style={styles.logoutText}>Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.otherButtons, {backgroundColor:Colors.light.lime}]} onPress={() => handleSliderButtonPress("settings")}>
+            <Text style={styles.logoutText}>Settings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.otherButtons, {backgroundColor:Colors.light.lime}]} onPress={() => handleSliderButtonPress("rateUs")}>
+            <Text style={styles.logoutText}>Rate us</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.logoutBtn, {backgroundColor:"red"}]} onPress={() => handleSliderButtonPress("logout")}>
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
 
@@ -105,6 +138,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
+  },
+  otherButtons: {
+    backgroundColor: '#e74c3c',
+    paddingVertical: 12,
+    borderRadius:8,
+    marginVertical:5,
+    alignItems:"center"
   },
   logoutBtn: {
     backgroundColor: '#e74c3c',

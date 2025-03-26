@@ -1,8 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, Image } from 'react-native'
 import FontAwesome from "@expo/vector-icons/FontAwesome"
 import React from 'react'
 import { Stack, Tabs } from 'expo-router'
 import { Colors } from "../../constants/Colors"
+
+const messengerIcon  = require("../../assets/icons/messenger.png")
 
 const HomeLayout = () => {
   return (
@@ -14,14 +16,15 @@ const HomeLayout = () => {
       <Stack.Screen name='clothDetails' options={{headerShown:false}} />
     </Stack> */}
 
-    
-      <Tabs screenOptions={{ tabBarStyle:{height:"auto", alignContent:"center", borderTopRightRadius:10, borderTopStartRadius:10},
-       headerShown: false, 
-       tabBarActiveTintColor: Colors.light.cyan,
-        tabBarAllowFontScaling: true, 
-        tabBarItemStyle:{alignSelf:"center", marginVertical:6},
-        tabBarIconStyle:{marginBottom:6}
-        }}>
+
+      <Tabs backBehavior='history' screenOptions={{
+        tabBarStyle: { height: 70, alignContent: "center", borderTopRightRadius: 10, borderTopStartRadius: 10 },
+        headerShown: false,
+        tabBarActiveTintColor: Colors.light.cyan,
+        tabBarAllowFontScaling: true,
+        tabBarItemStyle: { alignSelf: "center", marginVertical: 6 },
+        tabBarIconStyle: { marginBottom: 6 }
+      }}>
         <Tabs.Screen
           name='home'
           options={{
@@ -40,13 +43,14 @@ const HomeLayout = () => {
         />
 
         <Tabs.Screen
-          name='profile'
+          name='messenger'
           options={{
-            title: "Profile",
+            title: "Messeges",
 
-            tabBarIcon: ({ color }) => <FontAwesome size={28} color={color} name="user-circle" />
+            tabBarIcon: ({ color }) => <Image source={messengerIcon} />,
           }}
         />
+
 
         <Tabs.Screen
           name='clothDetails'
@@ -54,6 +58,9 @@ const HomeLayout = () => {
             href: null
           }}
         />
+
+
+
       </Tabs>
 
 

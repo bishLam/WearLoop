@@ -62,7 +62,7 @@ const Home = () => {
           </View>
           <TouchableOpacity onPress={() => setShowProfileModal(true)}>
           <Image 
-                source={require('../../assets/images/dummy profile.png')} 
+                source={require('../../assets/images/dummy-profile.png')} 
                 style={styles.profile}
             />
           </TouchableOpacity>
@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingHorizontal: "5%"
   },
   mainContainer: {
     padding: 16,
@@ -154,9 +155,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 30,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
+    paddingBottom: 5,
+    borderBottomWidth: 2,
     borderBottomColor: '#ddd',
   },
   leftContainer: {
@@ -164,19 +164,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 60,
-    height: 60,
+    width: 40,
+    height: 40,
     resizeMode: 'contain',
   },
   welcomeText: {
     marginLeft: 12,
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '600',
     color: '#333',
   },
   profile: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     resizeMode: 'contain',
   },
   searchContainer: {
