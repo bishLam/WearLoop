@@ -2,9 +2,8 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Pressable,
 import React, { useState } from 'react';
 import { Dropdown } from 'react-native-element-dropdown'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { router, Router } from 'expo-router';
+import { router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import * as ImagePicker from "expo-image-picker"
 import Toast from '@/components/toast';

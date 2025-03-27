@@ -67,7 +67,7 @@ const Profile = () => {
             <Text style={styles.postsCountText}>0 saved</Text>
           </View>
           <TouchableOpacity style={[{ backgroundColor: Colors.light.gray }, styles.editProfileButton]}
-            onPress={() => router.replace("/editProfile")}
+            onPress={() => router.push("/editProfile")}
           >
             <Text style={{ color: "white", fontWeight: 600 }}>
               Edit Profile

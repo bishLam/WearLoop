@@ -2,10 +2,12 @@ import { SafeAreaView, ScrollView, Pressable, StyleSheet, Text, View, Image, Tou
 import React, { useEffect, useState } from 'react'
 import CustomInput from '@/components/CustomInput'
 import { router } from "expo-router"
+import * as ImagePicker from "expo-image-picker"
 
 import { Colors } from "../../constants/Colors"
 import AntDesign from '@expo/vector-icons/AntDesign'
 import { defaultImage } from '@/constants/defaultImage'
+import Toast from '@/components/toast'
 
 const EditProfile = () => {
   const [form, setForm] = useState({
@@ -23,6 +25,8 @@ const EditProfile = () => {
     }
   )
   const [error, setError] = useState("")
+
+  const [image, setImage] = useState('')
 
   const setOtherErrorsToFalse = () => {
     setErrorSpot({
@@ -62,7 +66,7 @@ const EditProfile = () => {
   }
 
   const handleUploadButton = () => {
-
+    console.log(form, image)
   }
 
   const handleFormSubmit = async () => {
@@ -101,8 +105,29 @@ const EditProfile = () => {
   }
 
   const handleSavePressed = () => {
-    router.replace("/(account)/profile")
+    router.replace("/profile")
   }
+
+  const handleEditAvatarPress = async () => {
+    let permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if(!permission.granted){
+      Toast("We need camera permission to set your profile picture. Please give us the permission by going into your settings and try again.")
+      return
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      
+    });
+
+    if(!result.canceled){
+      setImage(
+        result.assets[0].uri
+      )
+    }
+  }
+
   useEffect(() => {
     textChanged();
   }, [form.firstName, form.lastName, form.email])
@@ -125,8 +150,10 @@ const EditProfile = () => {
           </Pressable>
         </View>
         <View style={styles.mainContainer}>
-          <Image style={styles.image} source={{uri: defaultImage}} />
-          <TouchableOpacity style={[{ backgroundColor: Colors.light.gray }, styles.editButton]} >
+          <Image style={styles.image} source={{uri: image || defaultImage}} />
+          <TouchableOpacity style={[{ backgroundColor: Colors.light.gray }, styles.editButton]} 
+          onPress={handleEditAvatarPress}
+          >
             <Text style={{ color: "white", fontWeight: 600 }}>
               Edit
             </Text>

@@ -14,7 +14,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { defaultImage } from '@/constants/defaultImage';
 
 //testing
-import { database, storage, config } from '@/lib/appwrite';
+import { database } from '@/lib/appwrite';
 
 
 const Home = () => {
@@ -45,8 +45,6 @@ const Home = () => {
     { id: '3', title: 'Card 3', text: 'This is the third card.', image: 'https://placehold.co/500x400' },
     { id: '4', title: 'Card 4', text: 'This is the fourth card.', image: 'https://placehold.co/500x400' },
   ];
-
-
 
   return (
     <SafeAreaView style={styles.container}>
