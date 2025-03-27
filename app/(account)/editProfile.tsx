@@ -4,14 +4,12 @@ import CustomInput from '@/components/CustomInput'
 import { router } from "expo-router"
 
 import { Colors } from "../../constants/Colors"
+import AntDesign from '@expo/vector-icons/AntDesign'
 
 
 const dummy = require("../../assets/images/dummy-profile.png")
 
 const EditProfile = () => {
-
-
-
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -65,6 +63,10 @@ const EditProfile = () => {
     setSaveButtonActive(false)
   }
 
+  const handleUploadButton = () => {
+
+  }
+
   const handleFormSubmit = async () => {
     if (form.firstName.trim() == "") {
       setError("Email field is required")
@@ -100,7 +102,7 @@ const EditProfile = () => {
 
   }
 
-  const handleSavePressed = () =>{
+  const handleSavePressed = () => {
     router.replace("/(account)/profile")
   }
   useEffect(() => {
@@ -109,10 +111,21 @@ const EditProfile = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical:"1%" }}>
-        <Pressable onPress={handleSavePressed} style={[!saveButtonActive && styles.saveButtonDefault, saveButtonActive && styles.saveButtonActive]}>
-          <Text style={[!saveButtonActive && styles.saveTextDefault, saveButtonActive && styles.saveTextActive]}>Save</Text>
-        </Pressable>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical: "1%" }}>
+        <View style={styles.headerContainer}>
+          <View style={styles.leftHeader}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+            >
+              {/* <Text style={styles.backButtonText}> {`<`} </Text> */}
+              <AntDesign name="arrowleft" size={34} color="black" />
+            </TouchableOpacity>
+            <Text style={styles.headerText}>Upload a cloth</Text>
+          </View>
+          <Pressable onPress={handleSavePressed} style={[!saveButtonActive && styles.saveButtonDefault, saveButtonActive && styles.saveButtonActive]}>
+            <Text style={[!saveButtonActive && styles.saveTextDefault, saveButtonActive && styles.saveTextActive]}>Save</Text>
+          </Pressable>
+        </View>
         <View style={styles.mainContainer}>
           <Image style={styles.image} source={dummy} />
           <TouchableOpacity style={[{ backgroundColor: Colors.light.gray }, styles.editButton]} >
@@ -161,6 +174,24 @@ const EditProfile = () => {
 export default EditProfile
 
 const styles = StyleSheet.create({
+
+  headerContainer: {
+    display:"flex",
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  leftHeader: {
+    display: "flex",
+    flexDirection: "row",
+    flex:1
+  },
+  headerText: {
+    fontSize: 25,
+    fontWeight: "600",
+    flex: 1,
+    textAlign: "center",
+    paddingLeft:29
+  },
 
   saveButtonDefault: {
     backgroundColor: "gray",

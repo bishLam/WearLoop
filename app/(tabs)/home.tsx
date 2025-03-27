@@ -106,7 +106,7 @@ const Home = () => {
               <Image 
                 source={{ uri: item.image }} 
                 style={styles.cardImage} 
-                resizeMode="cover"
+                resizeMode="contain"
               />
               <View style={styles.cardBody}>
                 <Text style={styles.cardTitle}>{item.title}</Text>

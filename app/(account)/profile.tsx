@@ -5,13 +5,14 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { Colors } from "../../constants/Colors"
 import { router } from 'expo-router'
+import AntDesign from '@expo/vector-icons/AntDesign'
 const dummy = require("../../assets/images/dummy-profile.png")
 
 type TabLayoutType = {
   selectedItem: string
 }
 
-const TabLayout = ({selectedItem} : TabLayoutType) => {
+const TabLayout = ({ selectedItem }: TabLayoutType) => {
   if (selectedItem === "posts") {
     return (
       <Text>
@@ -45,9 +46,19 @@ const Profile = () => {
   }
 
   return (
-    <SafeAreaView>
-      <ScrollView>
+    <SafeAreaView style = {{flex:1}}>
+      <ScrollView contentContainerStyle = {{paddingHorizontal: "5%", paddingVertical:"2%"}}>
         <View style={styles.mainContainer}>
+        <View style={styles.header}>
+          {/* button to go back to the previous page */}
+          <TouchableOpacity
+            onPress={() => router.replace("/home")}
+          >
+            {/* <Text style={styles.backButtonText}> {`<`} </Text> */}
+            <AntDesign name="arrowleft" size={34} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Upload a cloth</Text>
+        </View>
           <Image style={styles.image} source={dummy} />
           <Text style={styles.usernameText}>bishwo</Text>
           <Text style={styles.emailText}>biswanathlamichhane@gmail.com</Text>
@@ -56,7 +67,7 @@ const Profile = () => {
             <Text style={styles.postsCountText}>0 saved</Text>
           </View>
           <TouchableOpacity style={[{ backgroundColor: Colors.light.gray }, styles.editProfileButton]}
-          onPress={ () => router.replace("/editProfile")}
+            onPress={() => router.replace("/editProfile")}
           >
             <Text style={{ color: "white", fontWeight: 600 }}>
               Edit Profile
@@ -77,9 +88,9 @@ const Profile = () => {
               </Pressable>
             </View>
 
-            <View style = {styles.actualTabContainer}>
-              <TabLayout 
-                 selectedItem = {selectedTab}
+            <View style={styles.actualTabContainer}>
+              <TabLayout
+                selectedItem={selectedTab}
               />
             </View>
           </View>
@@ -95,6 +106,26 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     alignItems: "center",
+  },
+
+  backButtonText: {
+    fontSize: 30
+  },
+
+  header: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems:"center",
+    flex:1,
+    width:"100%"
+  },
+  headerText: {
+    fontSize: 25,
+    fontWeight: "600",
+    flex: 1,
+    textAlign: "center",
+    paddingRight: 34
   },
   image: {
     marginTop: 60,
@@ -131,7 +162,7 @@ const styles = StyleSheet.create({
   // From here on tab bar styles
   tabBarContainer: {
     marginTop: 40,
-    alignSelf:"center"
+    alignSelf: "center"
   },
 
   pressableContainer: {
@@ -148,9 +179,9 @@ const styles = StyleSheet.create({
   favsSelected: {
     borderBottomWidth: 2
   },
-  actualTabContainer:{
-    flex:1,
-    alignContent:"center"
+  actualTabContainer: {
+    flex: 1,
+    alignContent: "center"
     // backgroundColor:"gray"
   }
 })
