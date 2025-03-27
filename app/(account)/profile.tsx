@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Colors } from "../../constants/Colors"
 import { router } from 'expo-router'
 import AntDesign from '@expo/vector-icons/AntDesign'
-const dummy = require("../../assets/images/dummy-profile.png")
+import { defaultImage } from '@/constants/defaultImage'
 
 type TabLayoutType = {
   selectedItem: string
@@ -59,7 +59,7 @@ const Profile = () => {
           </TouchableOpacity>
           <Text style={styles.headerText}>Profile</Text>
         </View>
-          <Image style={styles.image} source={dummy} />
+          <Image style={styles.image} source={{uri: defaultImage}} />
           <Text style={styles.usernameText}>bishwo</Text>
           <Text style={styles.emailText}>biswanathlamichhane@gmail.com</Text>
           <View style={styles.totalPostsContainer}>

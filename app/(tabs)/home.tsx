@@ -33,9 +33,9 @@ const Home = () => {
 
 
   useEffect(()=>{
-    console.log(
-      "Home page is reloaded on current change on value user"
-    )
+    if(!userAuth?.current){
+      router.replace("/")
+    }
   } ,
   [userAuth?.current]);
 

@@ -5,9 +5,7 @@ import { router } from "expo-router"
 
 import { Colors } from "../../constants/Colors"
 import AntDesign from '@expo/vector-icons/AntDesign'
-
-
-const dummy = require("../../assets/images/dummy-profile.png")
+import { defaultImage } from '@/constants/defaultImage'
 
 const EditProfile = () => {
   const [form, setForm] = useState({
@@ -127,7 +125,7 @@ const EditProfile = () => {
           </Pressable>
         </View>
         <View style={styles.mainContainer}>
-          <Image style={styles.image} source={dummy} />
+          <Image style={styles.image} source={{uri: defaultImage}} />
           <TouchableOpacity style={[{ backgroundColor: Colors.light.gray }, styles.editButton]} >
             <Text style={{ color: "white", fontWeight: 600 }}>
               Edit

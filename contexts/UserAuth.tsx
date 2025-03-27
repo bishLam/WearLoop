@@ -69,7 +69,6 @@ const UserProvider = ({ children }: childrenType) => {
     await account.deleteSession("current")
     console.log(`${user?.email} logged out`)
     router.replace("/")
-    router.dismissAll()
 
     setUser(null)
 
