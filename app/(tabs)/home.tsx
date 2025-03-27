@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { router } from 'expo-router';
 import React from 'react';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import { defaultImage } from '@/constants/defaultImage';
 
 //testing
 import { database, storage, config } from '@/lib/appwrite';
@@ -62,7 +63,7 @@ const Home = () => {
           </View>
           <TouchableOpacity onPress={() => setShowProfileModal(true)}>
           <Image 
-                source={require('../../assets/images/dummy-profile.png')} 
+                source={{uri: defaultImage}} 
                 style={styles.profile}
             />
           </TouchableOpacity>

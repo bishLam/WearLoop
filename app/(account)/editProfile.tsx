@@ -120,7 +120,7 @@ const EditProfile = () => {
               {/* <Text style={styles.backButtonText}> {`<`} </Text> */}
               <AntDesign name="arrowleft" size={34} color="black" />
             </TouchableOpacity>
-            <Text style={styles.headerText}>Upload a cloth</Text>
+            <Text style={styles.headerText}>Edit Profile</Text>
           </View>
           <Pressable onPress={handleSavePressed} style={[!saveButtonActive && styles.saveButtonDefault, saveButtonActive && styles.saveButtonActive]}>
             <Text style={[!saveButtonActive && styles.saveTextDefault, saveButtonActive && styles.saveTextActive]}>Save</Text>
@@ -163,8 +163,6 @@ const EditProfile = () => {
             secureText={false}
             additionalStyles={{ width: "100%" }}
           />
-
-
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -178,7 +176,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     display:"flex",
     flexDirection: "row",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
   },
   leftHeader: {
     display: "flex",

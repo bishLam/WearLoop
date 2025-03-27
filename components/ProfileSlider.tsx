@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { Colors } from "../constants/Colors"
+import React, { useEffect, useRef, useState } from 'react';
+import { defaultImage } from '@/constants/defaultImage';
 import {
   Modal,
   View,
@@ -9,11 +9,15 @@ import {
   Animated,
   Dimensions,
   Pressable,
+  Image
 } from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { router } from 'expo-router';
 
 import { useUser } from '@/contexts/UserAuth';
+import Feather from '@expo/vector-icons/Feather';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
+
 
 type Props = {
   visible: boolean;
@@ -29,17 +33,25 @@ const ProfileSlider = ({ visible, onClose, onLogout }: Props) => {
   const userAuth = useUser();
   const handleSliderButtonPress = async (buttonName: string) => {
     if (buttonName === "profile") {
-      router.replace("/profile")
+      router.push("/profile")
+      onClose()
       return
     }
 
-    if (buttonName === "settings" || buttonName === "rateUs") {
-      router.replace("/+not-found")
+    if (buttonName === "settings" || buttonName === "rateUs" || buttonName === "notifications") {
+      router.push("/+not-found")
+      onClose()
+      return
+    }
+    if (buttonName === "home") {
+      router.push("/")
+      onClose()
       return
     }
 
     if (buttonName === "logout") {
       await userAuth?.logout();
+      onClose()
       return
     }
   }
@@ -77,24 +89,39 @@ const ProfileSlider = ({ visible, onClose, onLogout }: Props) => {
           ]}
         >
           {/* Header Row with Back Button */}
-          <View style={styles.headerRow}>
+          {/* <View style={styles.headerRow}>
             <TouchableOpacity onPress={onClose} style={styles.backButton}>
-              <FontAwesome name="arrow-left" size={24} color="#333" />
+              <AntDesign name="arrowleft" size={34} color="black" />
             </TouchableOpacity>
-            <Text style={styles.title}>Profile</Text>
-          </View>
+            <Text style={styles.title}>Menu</Text>
+          </View> */}
 
           {/* Logout Button */}
-          <TouchableOpacity style={[styles.otherButtons, { backgroundColor: Colors.light.lime }]} onPress={() => handleSliderButtonPress("profile")}>
-            <Text style={styles.logoutText}>Profile</Text>
+          <View style={styles.imageContainer}>
+            <Image style={styles.image} source={{ uri: defaultImage }} />
+          </View>
+          <TouchableOpacity style={[styles.otherButtons, { backgroundColor: "transparent" }]} onPress={() => handleSliderButtonPress("home")}>
+          <Feather name="home" size={24} color="black" />
+            <Text style={styles.otherText}>Home</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.otherButtons, { backgroundColor: Colors.light.lime }]} onPress={() => handleSliderButtonPress("settings")}>
-            <Text style={styles.logoutText}>Settings</Text>
+          <TouchableOpacity style={[styles.otherButtons, { backgroundColor: "transparent" }]} onPress={() => handleSliderButtonPress("profile")}>
+          <Feather name="user" size={24} color="black" />
+            <Text style={styles.otherText}>Profile</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.otherButtons, { backgroundColor: Colors.light.lime }]} onPress={() => handleSliderButtonPress("rateUs")}>
-            <Text style={styles.logoutText}>Rate us</Text>
+          <TouchableOpacity style={[styles.otherButtons, { backgroundColor: "transparent" }]} onPress={() => handleSliderButtonPress("settings")}>
+          <Feather name="settings" size={21} color="black" />
+            <Text style={styles.otherText}>Settings</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.logoutBtn, { backgroundColor: "red" }]} onPress={() => handleSliderButtonPress("logout")}>
+          <TouchableOpacity style={[styles.otherButtons, { backgroundColor: "transparent" }]} onPress={() => handleSliderButtonPress("notifications")}>
+          <Ionicons name="notifications-outline" size={24} color="black" />
+            <Text style={styles.otherText}>Notifications</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.otherButtons, { backgroundColor: "transparent" }]} onPress={() => handleSliderButtonPress("rateUs")}>
+          <Feather name="star" size={24} color="black" />
+            <Text style={styles.otherText}>Rate us</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.logoutBtn, { backgroundColor: "transparent" }]} onPress={() => handleSliderButtonPress("logout")}>
+          <MaterialIcons name="logout" size={24} color="red" />
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
 
@@ -115,7 +142,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end', // keep drawer anchored to right
   },
   drawer: {
-    width: '70%',
+    width: '50%',
     height: '100%',
     backgroundColor: '#fff',
     padding: 20,
@@ -139,24 +166,49 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
+    flex: 1,
+    textAlign: "center",
+    paddingRight: 34
   },
+  imageContainer: {
+    // alignSelf:"center",
+    paddingVertical: 30
+  },
+  image: {
+    height: 100,
+    width: 100,
+  },
+
   otherButtons: {
-    backgroundColor: '#e74c3c',
-    paddingVertical: 12,
+    paddingVertical: 16,
     borderRadius: 8,
-    marginVertical: 5,
-    alignItems: "center"
+    alignItems: "center",
+    flexDirection: "row",
+    // justifyContent:"center",
+    gap: 10,
+    width: "100%"
   },
   logoutBtn: {
-    backgroundColor: '#e74c3c',
+    // backgroundColor: '#e74c3c',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
+    // justifyContent:"center",
+    flexDirection: "row",
+    gap: 10,
+width: "100%"
   },
-  logoutText: {
-    color: '#fff',
+
+  otherText:{
+    color: 'black',
     fontSize: 16,
     fontWeight: '600',
+  },
+  logoutText: {
+    color: 'red',
+    fontSize: 16,
+    fontWeight: '600',
+
   },
 
 });

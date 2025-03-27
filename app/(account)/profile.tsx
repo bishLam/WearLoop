@@ -52,12 +52,12 @@ const Profile = () => {
         <View style={styles.header}>
           {/* button to go back to the previous page */}
           <TouchableOpacity
-            onPress={() => router.replace("/home")}
+            onPress={() => router.push("/home")}
           >
             {/* <Text style={styles.backButtonText}> {`<`} </Text> */}
             <AntDesign name="arrowleft" size={34} color="black" />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Upload a cloth</Text>
+          <Text style={styles.headerText}>Profile</Text>
         </View>
           <Image style={styles.image} source={dummy} />
           <Text style={styles.usernameText}>bishwo</Text>

@@ -9,6 +9,8 @@ import { Colors } from '@/constants/Colors';
 import * as ImagePicker from "expo-image-picker"
 import Toast from '@/components/toast';
 
+import { defaultImage } from '@/constants/defaultImage';
+
 
 const Create = () => {
   const [form, setForm] = useState({
@@ -100,7 +102,7 @@ const Create = () => {
                   form.image ? {
                     uri: form.image
                   } :
-                    { uri: "https://m.media-amazon.com/images/I/A16YlCTQRlL._CLa%7C2140%2C2000%7C41qgbzh%2B72L.png%7C0%2C0%2C2140%2C2000%2B0.0%2C0.0%2C2140.0%2C2000.0_AC_SX679_.png" }}
+                    { uri: defaultImage }}
               />
 
               <TouchableOpacity style={[{ backgroundColor: Colors.light.gray }, styles.editImageButton]}
@@ -198,7 +200,10 @@ export default Create
 const styles = StyleSheet.create({
 
   mainContainer: {
-
+    display:"flex",
+    flexDirection:"column",
+    justifyContent:"flex-end",
+    gap:20
   },
   backButton: {
     // backgroundColor:"red"
@@ -248,7 +253,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontWeight: 600,
-    fontSize: 18,
+    fontSize: 16,
     marginTop: 10
   },
   genderButtons: {
