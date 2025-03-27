@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View, Image } from 'react-native'
-import FontAwesome from "@expo/vector-icons/FontAwesome"
+import FontAwesome5Brands from "@expo/vector-icons/FontAwesome"
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"
 import React from 'react'
 import { Stack, Tabs } from 'expo-router'
 import { Colors } from "../../constants/Colors"
 
-const messengerIcon  = require("../../assets/icons/messenger.png")
 
 const HomeLayout = () => {
   return (
@@ -29,7 +29,7 @@ const HomeLayout = () => {
           name='home'
           options={{
             title: "Home",
-            tabBarIcon: ({ color, focused }) => <FontAwesome size={28} name="home" color={color} focused={focused} />
+            tabBarIcon: ({ color, focused }) => <FontAwesome5Brands size={28} name="home" color={color} focused={focused} />
           }}
         />
 
@@ -38,7 +38,7 @@ const HomeLayout = () => {
           options={{
             title: "create",
 
-            tabBarIcon: ({ color }) => <FontAwesome size={28} color={color} name="plus-square" />
+            tabBarIcon: ({ color }) => <FontAwesome5Brands size={28} color={color} name="plus-square" />
           }}
         />
 
@@ -47,7 +47,7 @@ const HomeLayout = () => {
           options={{
             title: "Messeges",
 
-            tabBarIcon: ({ color }) => <Image source={messengerIcon} />,
+            tabBarIcon: ({ color }) => <MaterialCommunityIcons size={28} color={color} name="facebook-messenger" />,
           }}
         />
 
