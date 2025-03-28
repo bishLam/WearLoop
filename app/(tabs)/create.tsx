@@ -10,6 +10,7 @@ import {
   Platform as RNPlatform,
   ActivityIndicator,
   Platform,
+  Pressable,
 } from 'react-native';
 import React, { useState, useRef } from 'react';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -20,6 +21,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { addClothToDatabase } from '@/lib/appwrite';
 import Toast from '@/components/toast';
 import { defaultImage } from '@/constants/defaultImage';
+import { Colors } from '@/constants/Colors';
 
 const Create = () => {
   const [imageUri, setImageUri] = useState('');
@@ -47,40 +49,39 @@ const Create = () => {
     { label: 'Used', value: 'Used' },
   ];
 
-  const pickImage = async () => {
-    if (RNPlatform.OS === 'web') {
-      fileInputRef.current?.click();
-    } else {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permission.granted) {
-        alert('Media access permission required');
-        return;
-      }
+  const handleImagePickerPress = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      alert('Media access permission required');
+      return;
+    }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 1,
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      quality: 1,
+      allowsEditing: true
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      const asset = result.assets[0];
+      setImageUri(asset.uri);
+      setImageMeta({
+        name: asset.fileName ?? `cloth_${Date.now()}.jpg`,
+        type: asset.mimeType ?? 'image/jpeg',
+        size: asset.fileSize ?? 1,
       });
-
-      if (!result.canceled && result.assets.length > 0) {
-        const asset = result.assets[0];
-        setImageUri(asset.uri);
-        setImageMeta({
-          name: asset.fileName ?? `cloth_${Date.now()}.jpg`,
-          type: asset.type ?? 'image/jpeg',
-          size: asset.fileSize ?? 1,
-        });
-      }
     }
   };
 
-  const handleSubmit = async () => {
+  const handleFormSubmit = async () => {
+    console.log(imageUri)
     if (!imageMeta.name || !gender || !category || !condition) {
       alert('Please fill all required fields.');
       return;
     }
 
     try {
+      setUploading(true)
       await addClothToDatabase({
         name: imageMeta.name,
         type: imageMeta.type,
@@ -97,142 +98,238 @@ const Create = () => {
     }
   };
 
+
+
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
       <SafeAreaView style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <AntDesign name="arrowleft" size={30} />
-          </TouchableOpacity>
-
-          <Text style={styles.header}>Upload Cloth</Text>
-
-          <TouchableOpacity onPress={pickImage}>
-            <Image
-              source={
-                imageUri
-                  ? { uri: imageUri }
-                  : { uri: defaultImage }
-              }
-              style={styles.image}
-            />
-          </TouchableOpacity>
-
-          <Text style={styles.label}>Gender</Text>
-          <View style={styles.row}>
-            {['male', 'female', 'other'].map((g) => (
-              <TouchableOpacity
-                key={g}
-                style={[styles.chip, gender === g && styles.activeChip]}
-                onPress={() => setGender(g)}
+        <ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical: "2%" }}>
+          <View style={styles.mainContainer}>
+            <View style={styles.header}>
+              {/* button to go back to the previous page */}
+              <TouchableOpacity style={styles.backButton}
+                onPress={() => router.replace("/home")}
               >
-                <Text>{g}</Text>
+                {/* <Text style={styles.backButtonText}> {`<`} </Text> */}
+                <AntDesign name="arrowleft" size={34} color="black" />
               </TouchableOpacity>
-            ))}
+              <Text style={styles.headerText}>Upload a cloth</Text>
+            </View>
+            {/* View with image and buttons to change the image */}
+            <View>
+              <Image
+                style={styles.image}
+                source={
+                  imageUri ? {
+                    uri: imageUri
+                  } :
+                    { uri: defaultImage }}
+              />
+
+              <TouchableOpacity style={[{ backgroundColor: Colors.light.gray }, styles.editImageButton]}
+                onPress={
+                  handleImagePickerPress
+                }
+              >
+                <Text style={{ color: "white", fontWeight: 600, flex: 1, textAlign: "center" }}>
+                  Edit
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* View to set the cloth details */}
+            <View style={styles.genderContainer}>
+              {/* horizontal view to set the gender */}
+              <Text style={styles.titleText}>Select a gender*</Text>
+              <View style={styles.genderButtons}>
+                <Pressable style={[gender === "male" && styles.activeGender && { backgroundColor: Colors.light.cyan }, styles.gender]}
+                  onPress={() => setGender("male")}
+                >
+                  <Text style={{ textAlign: "center" }}>Male</Text>
+                </Pressable>
+                <Pressable style={[gender === "female" && styles.activeGender && { backgroundColor: Colors.light.cyan }, styles.gender]}
+                  onPress={() => setGender("female")}
+                >
+                  <Text style={{ textAlign: "center" }}>Female</Text>
+                </Pressable>
+                <Pressable style={[gender === "other" && styles.activeGender && { backgroundColor: Colors.light.cyan }, styles.gender]}
+                  onPress={() => setGender("other")}
+                >
+                  <Text style={{ textAlign: "center" }}>Other</Text>
+                </Pressable>
+              </View>
+            </View>
+
+
+            {/* View to select Category */}
+            <View >
+              <Text style={styles.titleText}>Select Category*</Text>
+              <Dropdown
+                style={[{ borderBlockColor: Colors.light.gray }, styles.dropdownContainer]}
+                mode='default'
+                data={categories}
+                onChange={(e) => { setCategory(e) }}
+                labelField={'label'}
+                valueField={'value'}
+                activeColor={Colors.light.cyan}
+
+              />
+            </View>
+
+            {/* View to select conditions */}
+            <View >
+              <Text style={styles.titleText}>Select Condition*</Text>
+              <Dropdown
+                style={[{ borderBlockColor: Colors.light.gray }, styles.dropdownContainer]}
+                mode='default'
+                data={conditions}
+                onChange={(e) => { setCondition(e) }}
+                labelField={'label'}
+                valueField={'value'}
+                activeColor={Colors.light.cyan}
+              />
+            </View>
+            {/* Description container */}
+            <View >
+              <Text style={styles.titleText}>Description*</Text>
+              <TextInput
+                multiline
+                numberOfLines={6}
+                placeholder="Enter description for your cloth"
+                style={styles.descriptionInput}
+                scrollEnabled
+                submitBehavior="newline"
+                onChangeText={(e) => { setDescription(e) }}
+              />
+            </View>
+            {/* submit button */}
+            <TouchableOpacity
+              style={[styles.submitButton, { backgroundColor: Colors.light.lime }]}
+              onPress={handleFormSubmit}
+            >
+              {uploading ?
+                <ActivityIndicator
+                  color={Colors.light.cyan}
+                />
+                :
+                <Text style={styles.submitButtonText}>Upload</Text>
+              }
+            </TouchableOpacity>
           </View>
-
-          <Text style={styles.label}>Category</Text>
-          <Dropdown
-            data={categories}
-            labelField="label"
-            valueField="value"
-            placeholder="Select category"
-            value={category}
-            onChange={(item) => setCategory(item.value)}
-            style={styles.dropdown}
-          />
-
-          <Text style={styles.label}>Condition</Text>
-          <Dropdown
-            data={conditions}
-            labelField="label"
-            valueField="value"
-            placeholder="Select condition"
-            value={condition}
-            onChange={(item) => setCondition(item.value)}
-            style={styles.dropdown}
-          />
-
-          <Text style={styles.label}>Description</Text>
-          <TextInput
-            style={styles.textarea}
-            multiline
-            numberOfLines={5}
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Write a short description"
-          />
-
-          <TouchableOpacity style={styles.submit} onPress={handleSubmit} disabled={uploading}>
-            {uploading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.submitText}>Upload</Text>
-            )}
-          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
-  );
-};
+  )
+}
 
-export default Create;
+export default Create
 
 const styles = StyleSheet.create({
+
+  mainContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    gap: 20
+  },
+  backButton: {
+    // backgroundColor:"red"
+
+  },
+  backButtonText: {
+    fontSize: 40
+  },
+
   header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginVertical: 16,
-    textAlign: 'center',
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
   },
+
+  headerText: {
+    fontSize: 25,
+    fontWeight: "600",
+    flex: 1,
+    textAlign: "center",
+    paddingRight: 34
+  },
+
   image: {
-    width: 150,
     height: 150,
-    alignSelf: 'center',
+    width: 150,
+    resizeMode: "cover",
+    alignSelf: "center",
+    marginTop: 30,
+    borderRadius: 15
+  },
+
+  editImageButton: {
     borderRadius: 10,
-    marginBottom: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    marginTop: 5,
+    width: 80,
+    alignSelf: "center"
   },
-  label: {
-    fontWeight: '600',
-    marginTop: 12,
+
+  genderContainer: {
+    display: "flex",
+    flexDirection: "column",
+    marginTop: 20,
+    gap: 10
   },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 8,
+  titleText: {
+    fontWeight: 600,
+    fontSize: 16,
+    marginTop: 10
   },
-  chip: {
+  genderButtons: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    gap: 10
+  },
+  gender: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderWidth: 1,
-    borderRadius: 20,
-  },
-  activeChip: {
-    backgroundColor: '#d1e7dd',
-  },
-  dropdown: {
-    marginTop: 8,
-    borderWidth: 1,
     borderRadius: 10,
-    padding: 10,
-  },
-  textarea: {
+    flex: 1,
     borderWidth: 1,
+  },
+
+  activeGender: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 10,
-    padding: 12,
-    marginTop: 8,
-    textAlignVertical: 'top',
+    flex: 1,
   },
-  submit: {
-    backgroundColor: '#3d7cf7',
-    padding: 14,
+  dropdownContainer: {
     borderRadius: 10,
-    marginTop: 20,
-    alignItems: 'center',
+    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginTop: 5
   },
-  submitText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
+  descriptionInput: {
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    minHeight: 40
   },
+  submitButton: {
+    width: "100%",
+    marginTop: 24,
+    paddingVertical: 10,
+    borderColor: "none",
+    borderRadius: 10
+  },
+
+  submitButtonText: {
+    fontSize: 20,
+    alignSelf: "center"
+  }
 })
