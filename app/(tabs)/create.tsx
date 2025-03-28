@@ -9,12 +9,27 @@ import * as ImagePicker from "expo-image-picker"
 import Toast from '@/components/toast';
 
 import { defaultImage } from '@/constants/defaultImage';
+import { addClothToDatabase } from '@/lib/appwrite';
 
+
+type formType = {
+  gender: string,
+  image: string,
+  imageSize: number,
+  imageName: string,
+  imageType: string,
+  category: string,
+  condition: string,
+  description: string
+}
 
 const Create = () => {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<formType>({
     gender: "",
     image: "",
+    imageSize: 0,
+    imageName: "",
+    imageType: "",
     category: "",
     condition: "",
     description: ""
@@ -49,12 +64,18 @@ const Create = () => {
       {
         mediaTypes: 'images',
         allowsEditing: true,
-        quality: 1
+        quality: 1,
       }
     )
     if (!result.canceled) {
-      setForm({ ...form, image: result.assets[0].uri })
+      setForm({
+        ...form, image: result.assets[0].uri,
+        imageSize: result.assets[0].fileSize!,
+        imageName: result.assets[0].fileName!,
+        imageType: result.assets[0].type!
+      })
     }
+
 
   }
 
@@ -70,15 +91,26 @@ const Create = () => {
     }
   }
 
-  const handleFormSubmit = () => {
-
+  const handleFormSubmit = async () => {
+    try {
+      await addClothToDatabase({
+        name: form.imageName,
+        type: form.imageType,
+        size: form.imageSize,
+        uri: form.image
+      })
+    }
+    catch (error) {
+      console.log(error)
+      Toast(Error.toString())
+    }
   }
 
 
   return (
     <KeyboardAvoidingView
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    style = {{flex:1}}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
     >
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical: "2%" }}>
@@ -166,7 +198,7 @@ const Create = () => {
                 activeColor={Colors.light.cyan}
               />
             </View>
-                {/* Description container */}
+            {/* Description container */}
             <View >
               <Text style={styles.titleText}>Description*</Text>
               <TextInput
@@ -184,7 +216,7 @@ const Create = () => {
               style={[styles.submitButton, { backgroundColor: Colors.light.lime }]}
               onPress={handleFormSubmit}
             >
-            <Text style={styles.submitButtonText}>Upload</Text>
+              <Text style={styles.submitButtonText}>Upload</Text>
             </TouchableOpacity>
 
           </View>
@@ -199,10 +231,10 @@ export default Create
 const styles = StyleSheet.create({
 
   mainContainer: {
-    display:"flex",
-    flexDirection:"column",
-    justifyContent:"flex-end",
-    gap:20
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    gap: 20
   },
   backButton: {
     // backgroundColor:"red"
