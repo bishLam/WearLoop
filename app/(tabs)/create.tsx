@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform as RNPlatform,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import React, { useState, useRef } from 'react';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -16,50 +17,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-<<<<<<< HEAD
-import { database, storage, config } from '@/lib/appwrite';
-import { ID, Permission, Role } from 'react-native-appwrite';
-import { Platform } from 'react-native';
-
-let WebAppwrite: any = null;
-if (RNPlatform.OS === 'web') {
-  WebAppwrite = require('appwrite'); // appwrite web sdk
-}
-
-const Create = () => {
-  const [imageUri, setImageUri] = useState('');
-  const [imageBlob, setImageBlob] = useState<any>(null); // For Web
-=======
-<<<<<<< HEAD
-// import { database, storage, config } from '@/lib/appwrite';
 import { addClothToDatabase } from '@/lib/appwrite';
-import { ID, Permission, Role } from 'react-native-appwrite';
-import { Platform } from 'react-native';
 import Toast from '@/components/toast';
-
-// let WebAppwrite: any = null;
-// if (RNPlatform.OS === 'web') {
-//   WebAppwrite = require('appwrite'); // appwrite web sdk
-// }
+import { defaultImage } from '@/constants/defaultImage';
 
 const Create = () => {
   const [imageUri, setImageUri] = useState('');
-  // const [imageBlob, setImageBlob] = useState<any>(null); // For Web
-=======
-import { database, storage, config } from '@/lib/appwrite';
-import { ID, Permission, Role } from 'react-native-appwrite';
-import { Platform } from 'react-native';
-
-let WebAppwrite: any = null;
-if (RNPlatform.OS === 'web') {
-  WebAppwrite = require('appwrite'); // appwrite web sdk
-}
-
-const Create = () => {
-  const [imageUri, setImageUri] = useState('');
-  const [imageBlob, setImageBlob] = useState<any>(null); // For Web
->>>>>>> 4eb552cfcab3a62e0bec23f5cff514e1288892ff
->>>>>>> 1f9543dce5f8db8da1417a912904546217fc468d
   const [imageMeta, setImageMeta] = useState({
     name: '',
     type: '',
@@ -70,11 +33,7 @@ const Create = () => {
   const [condition, setCondition] = useState('');
   const [description, setDescription] = useState('');
   const [uploading, setUploading] = useState(false);
-<<<<<<< HEAD
-  // const fileInputRef = useRef<any>();
-=======
   const fileInputRef = useRef<any>();
->>>>>>> 4eb552cfcab3a62e0bec23f5cff514e1288892ff
 
   const categories = [
     { label: 'Shirts', value: 'Shirts' },
@@ -89,47 +48,6 @@ const Create = () => {
   ];
 
   const pickImage = async () => {
-<<<<<<< HEAD
-    // if (RNPlatform.OS === 'web') {
-    //   fileInputRef.current?.click();
-    // } else {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Toast('Media access permission required');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      mediaTypes: "images",
-      quality: 1
-    });
-
-    if (!result.canceled && result.assets.length > 0) {
-      const asset = result.assets[0];
-      setImageUri(asset.uri);
-      setImageMeta({
-        name: asset.fileName ?? `cloth_${Date.now()}.jpg`,
-        type: asset.mimeType ?? 'image/jpeg',
-        size: asset.fileSize ?? 1,
-      });
-    }
-    // }
-  };
-
-  // const handleWebFile = (e: any) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     setImageUri(URL.createObjectURL(file));
-  //     setImageBlob(file);
-  //     setImageMeta({
-  //       name: file.name,
-  //       type: file.type,
-  //       size: file.size,
-  //     });
-  //   }
-  // };
-=======
     if (RNPlatform.OS === 'web') {
       fileInputRef.current?.click();
     } else {
@@ -156,28 +74,12 @@ const Create = () => {
     }
   };
 
-  const handleWebFile = (e: any) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageUri(URL.createObjectURL(file));
-      setImageBlob(file);
-      setImageMeta({
-        name: file.name,
-        type: file.type,
-        size: file.size,
-      });
-    }
-  };
->>>>>>> 4eb552cfcab3a62e0bec23f5cff514e1288892ff
-
   const handleSubmit = async () => {
     if (!imageMeta.name || !gender || !category || !condition) {
       alert('Please fill all required fields.');
       return;
     }
 
-    setUploading(true);
-<<<<<<< HEAD
     try {
       await addClothToDatabase({
         name: imageMeta.name,
@@ -185,121 +87,14 @@ const Create = () => {
         size: imageMeta.size,
         uri: imageUri
       })
+      Toast('✅ Upload successful!');
+      router.replace('/home');
     }
     catch (error) {
-      console.log("error: ", error)
-      Toast("error: "+ error)
-    }
-
-    finally {
-      setUploading(false)
-    }
-
-    // try {
-    //   let uploadedFile;
-
-    //   if (RNPlatform.OS === 'web') {
-    //     const client = new WebAppwrite.Client()
-    //       .setEndpoint(config.endpoint)
-    //       .setProject(config.projectID);
-
-    //     const storageWeb = new WebAppwrite.Storage(client);
-
-    //     uploadedFile = await storageWeb.createFile(
-    //       config.bucketID,
-    //       ID.unique(),
-    //       imageBlob,
-    //       [WebAppwrite.Permission.read(WebAppwrite.Role.any())]
-    //     );
-    //   } else {
-    //     uploadedFile = await storage.createFile(
-    //       config.bucketID,
-    //       ID.unique(),
-    //       {
-    //         uri: imageUri,
-    //         name: imageMeta.name,
-    //         type: imageMeta.type,
-    //         size: imageMeta.size,
-    //       },
-    //       [Permission.read(Role.any()), Permission.write(Role.user('current'))]
-    //     );
-    //   }
-
-    //   await database.createDocument(
-    //     config.databaseID,
-    //     config.ProductCollectionID,
-    //     ID.unique(),
-    //     {
-    //       Image: uploadedFile.$id,
-    //       Gender: gender,        
-    //       Category: category,     
-    //       Condition: condition,   
-    //       Description: description 
-    //     }
-    //   );
-
-    //   alert('✅ Upload successful!');
-    //   router.replace('/home');
-    // } catch (err: any) {
-    //   console.error('❌ Upload failed:', err);
-    //   alert(err.message || 'Upload failed');
-    // } finally {
-    //   setUploading(false);
-    // }
-=======
-
-    try {
-      let uploadedFile;
-
-      if (RNPlatform.OS === 'web') {
-        const client = new WebAppwrite.Client()
-          .setEndpoint(config.endpoint)
-          .setProject(config.projectID);
-
-        const storageWeb = new WebAppwrite.Storage(client);
-
-        uploadedFile = await storageWeb.createFile(
-          config.bucketID,
-          ID.unique(),
-          imageBlob,
-          [WebAppwrite.Permission.read(WebAppwrite.Role.any())]
-        );
-      } else {
-        uploadedFile = await storage.createFile(
-          config.bucketID,
-          ID.unique(),
-          {
-            uri: imageUri,
-            name: imageMeta.name,
-            type: imageMeta.type,
-            size: imageMeta.size,
-          },
-          [Permission.read(Role.any()), Permission.write(Role.user('current'))]
-        );
-      }
-
-      await database.createDocument(
-        config.databaseID,
-        config.ProductCollectionID,
-        ID.unique(),
-        {
-          Image: uploadedFile.$id,
-          Gender: gender,        
-          Category: category,     
-          Condition: condition,   
-          Description: description 
-        }
-      );
-
-      alert('✅ Upload successful!');
-      router.replace('/home');
-    } catch (err: any) {
-      console.error('❌ Upload failed:', err);
-      alert(err.message || 'Upload failed');
+      Toast('Upload Failed!' + error);
     } finally {
       setUploading(false);
     }
->>>>>>> 4eb552cfcab3a62e0bec23f5cff514e1288892ff
   };
 
   return (
@@ -317,29 +112,11 @@ const Create = () => {
               source={
                 imageUri
                   ? { uri: imageUri }
-                  : { uri: 'https://placehold.co/150x150?text=No+Image' }
+                  : { uri: defaultImage }
               }
               style={styles.image}
             />
           </TouchableOpacity>
-<<<<<<< HEAD
-          {/* 
-=======
-
->>>>>>> 4eb552cfcab3a62e0bec23f5cff514e1288892ff
-          {RNPlatform.OS === 'web' && (
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              style={{ display: 'none' }}
-              onChange={handleWebFile}
-            />
-<<<<<<< HEAD
-          )} */}
-=======
-          )}
->>>>>>> 4eb552cfcab3a62e0bec23f5cff514e1288892ff
 
           <Text style={styles.label}>Gender</Text>
           <View style={styles.row}>
@@ -458,4 +235,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-});
+})
