@@ -14,7 +14,7 @@ import { addClothToDatabase } from '@/lib/appwrite';
 
 type formType = {
   gender: string,
-  image: string,
+  imageUri: string,
   imageSize: number,
   imageName: string,
   imageType: string,
@@ -26,7 +26,7 @@ type formType = {
 const Create = () => {
   const [form, setForm] = useState<formType>({
     gender: "",
-    image: "",
+    imageUri: "",
     imageSize: 0,
     imageName: "",
     imageType: "",
@@ -69,10 +69,11 @@ const Create = () => {
     )
     if (!result.canceled) {
       setForm({
-        ...form, image: result.assets[0].uri,
+        ...form, 
+        imageUri: result.assets[0].uri,
         imageSize: result.assets[0].fileSize!,
         imageName: result.assets[0].fileName!,
-        imageType: result.assets[0].type!
+        imageType: result.assets[0].mimeType!
       })
     }
 
@@ -93,11 +94,13 @@ const Create = () => {
 
   const handleFormSubmit = async () => {
     try {
+      console.log(form)
+
       await addClothToDatabase({
         name: form.imageName,
         type: form.imageType,
         size: form.imageSize,
-        uri: form.image
+        uri: form.imageUri
       })
     }
     catch (error) {
@@ -130,8 +133,8 @@ const Create = () => {
               <Image
                 style={styles.image}
                 source={
-                  form.image ? {
-                    uri: form.image
+                  form.imageUri ? {
+                    uri: form.imageUri
                   } :
                     { uri: defaultImage }}
               />
