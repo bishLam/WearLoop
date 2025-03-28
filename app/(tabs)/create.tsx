@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+<<<<<<< HEAD
 import { database, storage, config } from '@/lib/appwrite';
 import { ID, Permission, Role } from 'react-native-appwrite';
 import { Platform } from 'react-native';
@@ -28,6 +29,37 @@ if (RNPlatform.OS === 'web') {
 const Create = () => {
   const [imageUri, setImageUri] = useState('');
   const [imageBlob, setImageBlob] = useState<any>(null); // For Web
+=======
+<<<<<<< HEAD
+// import { database, storage, config } from '@/lib/appwrite';
+import { addClothToDatabase } from '@/lib/appwrite';
+import { ID, Permission, Role } from 'react-native-appwrite';
+import { Platform } from 'react-native';
+import Toast from '@/components/toast';
+
+// let WebAppwrite: any = null;
+// if (RNPlatform.OS === 'web') {
+//   WebAppwrite = require('appwrite'); // appwrite web sdk
+// }
+
+const Create = () => {
+  const [imageUri, setImageUri] = useState('');
+  // const [imageBlob, setImageBlob] = useState<any>(null); // For Web
+=======
+import { database, storage, config } from '@/lib/appwrite';
+import { ID, Permission, Role } from 'react-native-appwrite';
+import { Platform } from 'react-native';
+
+let WebAppwrite: any = null;
+if (RNPlatform.OS === 'web') {
+  WebAppwrite = require('appwrite'); // appwrite web sdk
+}
+
+const Create = () => {
+  const [imageUri, setImageUri] = useState('');
+  const [imageBlob, setImageBlob] = useState<any>(null); // For Web
+>>>>>>> 4eb552cfcab3a62e0bec23f5cff514e1288892ff
+>>>>>>> 1f9543dce5f8db8da1417a912904546217fc468d
   const [imageMeta, setImageMeta] = useState({
     name: '',
     type: '',
