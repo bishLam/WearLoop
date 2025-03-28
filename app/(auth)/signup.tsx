@@ -126,9 +126,8 @@ const Login = () => {
   }
 
   return (
-    <SafeAreaProvider>
       <SafeAreaView style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={{  }}>
           {isLoading ?
             <Text>Signing you up...</Text> :
             <View style={styles.mainContainer}>
@@ -211,7 +210,6 @@ const Login = () => {
 
         </ScrollView>
       </SafeAreaView>
-    </SafeAreaProvider>
   )
 }
 

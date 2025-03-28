@@ -77,7 +77,7 @@ const Login = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{ }}>
         {
           isLoading ? <Text style={styles.mainContainer}>
             Signing you in. Won't be a moment.....

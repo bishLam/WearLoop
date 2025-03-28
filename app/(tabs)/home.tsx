@@ -1,5 +1,7 @@
-import { StyleSheet, Text,  Image, TextInput,
-  View, ScrollView, TouchableOpacity } from 'react-native'
+import {
+  StyleSheet, Text, Image, TextInput,
+  View, ScrollView, TouchableOpacity
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useWindowDimensions } from 'react-native';
 import ProfileSlider from '@/components/ProfileSlider';
@@ -14,7 +16,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { defaultImage } from '@/constants/defaultImage';
 
 //testing
-import { database, storage, config } from '@/lib/appwrite';
+import { database, listAllClothes } from '@/lib/appwrite';
 
 
 const Home = () => {
@@ -32,81 +34,79 @@ const Home = () => {
 
 
 
-  useEffect(()=>{
-    if(!userAuth?.current){
-      router.replace("/")
+  useEffect(() => {
+    if (!userAuth?.current) {
+      setTimeout(() => {
+        router.replace("/")
+      }, 0);
     }
-  } ,
-  [userAuth?.current]);
-
-  const cardsData = [
-    { id: '1', title: 'Card 1', text: 'This is the first card.', image: 'https://placehold.co/500x400' },
-    { id: '2', title: 'Card 2', text: 'This is the second card.', image: 'https://placehold.co/500x400' },
-    { id: '3', title: 'Card 3', text: 'This is the third card.', image: 'https://placehold.co/500x400' },
-    { id: '4', title: 'Card 4', text: 'This is the fourth card.', image: 'https://placehold.co/500x400' },
-  ];
+  },
+    [userAuth?.current]);
 
 
+  const cardsData = async() => {
+    try{
+     let data =  await listAllClothes();
+     console.log(data)
+  }
+  catch(error){
+    console.log(error)
+  }
+}
 
   return (
     <SafeAreaView style={styles.container}>
-    <ScrollView>
-      <View style={styles.mainContainer}>
-        <View style={styles.header}>
-          <View style={styles.leftContainer}>
-         
-            <Image 
-              source={require('../../assets/icons/logo.png')} 
-              style={styles.logo}
-            />
-            <Text style={styles.welcomeText}>Welcome back</Text>
-          </View>
-          <TouchableOpacity onPress={() => setShowProfileModal(true)}>
-          <Image 
-                source={{uri: defaultImage}} 
+      <ScrollView>
+        <View style={styles.mainContainer}>
+          <View style={styles.header}>
+            <View style={styles.leftContainer}>
+
+              <Image
+                source={require('../../assets/icons/logo.png')}
+                style={styles.logo}
+              />
+              <Text style={styles.welcomeText}>Welcome back</Text>
+            </View>
+            <TouchableOpacity onPress={() => setShowProfileModal(true)}>
+              <Image
+                source={{ uri: defaultImage }}
                 style={styles.profile}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.inputcontainer}>
+            <TextInput
+              style={styles.inputtext}
+              placeholder="Search"
             />
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.searchButton}
+              onPress={() => {
+                // Add search functionality here
+              }}
+            >
+              <FontAwesome5 name="search" size={20} color="#007bff" />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <View style={styles.inputcontainer}>
-          <TextInput 
-            style={styles.inputtext} 
-            placeholder="Search" 
-          />
-          <TouchableOpacity 
-            style={styles.searchButton}
-            onPress={() => {
-              // Add search functionality here
-            }}
-          >
 
-
-            <FontAwesome5 name="search" size={20} color="#007bff" />
-          </TouchableOpacity>
-
-
-              
-
-        </View>
-      </View>
-
-
-      <View style={[
-          styles.cardContainer, 
+        <View style={[
+          styles.cardContainer,
           isMobile ? styles.cardContainerMobile : styles.cardContainerDesktop
         ]}>
-          {cardsData.map((item) => (
-            <View 
-              key={item.id} 
+          {/* {cardsData.map((item) => (
+            <View
+              key={item.id}
               style={[
-                styles.card, 
+                styles.card,
                 isMobile ? styles.cardMobile : styles.cardDesktop
               ]}
             >
-              <Image 
-                source={{ uri: item.image }} 
-                style={styles.cardImage} 
+              <Image
+                source={{ uri: item.image }}
+                style={styles.cardImage}
                 resizeMode="contain"
               />
               <View style={styles.cardBody}>
@@ -117,26 +117,26 @@ const Home = () => {
                 </TouchableOpacity>
               </View>
             </View>
-          ))}
+          ))} */}
         </View>
 
-      
-    </ScrollView>
 
-    <ProfileSlider
+      </ScrollView>
+
+      <ProfileSlider
         visible={showProfileModal}
         onClose={() => setShowProfileModal(false)}
         onLogout={async () => {
           setShowProfileModal(false);
           await handleLogout();
         }}
-      /> 
+      />
 
 
 
 
 
-  </SafeAreaView>
+    </SafeAreaView>
   )
 }
 
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   cardDesktop: {
     width: '48%',
     maxWidth: 400,
-  
+
   },
   cardMobile: {
     width: '100%',
