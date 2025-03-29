@@ -18,10 +18,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { addClothToDatabase } from '@/lib/appwrite';
+import { addClothToDatabase, addClothToDatabaseWeb } from '@/lib/appwrite';
 import Toast from '@/components/toast';
 import { defaultImage } from '@/constants/defaultImage';
 import { Colors } from '@/constants/Colors';
+
 
 const Create = () => {
   const [imageUri, setImageUri] = useState('');
@@ -35,7 +36,8 @@ const Create = () => {
   const [condition, setCondition] = useState('');
   const [description, setDescription] = useState('');
   const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<any>();
+  const [webFile, setWebFile] = useState<File>();
+  const [imageBlob, setImageBlob] = useState<Blob | MediaSource>(new Blob())
 
   const categories = [
     { label: 'Shirts', value: 'Shirts' },
@@ -50,46 +52,71 @@ const Create = () => {
   ];
 
   const handleImagePickerPress = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      alert('Media access permission required');
-      return;
-    }
+    if (Platform.OS === "ios" || Platform.OS === "android") {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        alert('Media access permission required');
+        return;
+      }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: "images",
-      quality: 1,
-      allowsEditing: true
-    });
-
-    if (!result.canceled && result.assets.length > 0) {
-      const asset = result.assets[0];
-      setImageUri(asset.uri);
-      setImageMeta({
-        name: asset.fileName ?? `cloth_${Date.now()}.jpg`,
-        type: asset.mimeType ?? 'image/jpeg',
-        size: asset.fileSize ?? 1,
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: "images",
+        quality: 1,
+        allowsEditing: true
       });
+
+      if (!result.canceled && result.assets.length > 0) {
+        const asset = result.assets[0];
+        setImageUri(asset.uri);
+        setImageMeta({
+          name: asset.fileName ?? `cloth_${Date.now()}.jpg`,
+          type: asset.mimeType ?? 'image/jpeg',
+          size: asset.fileSize ?? 1,
+        });
+      }
     }
-  };
+    else if (Platform.OS === "web") {
+      document.getElementById("fileImageSelecter")?.click()
+    }
+  }
+
+  const handleWebImagePress = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null
+    if (file) {
+      setWebFile(file)
+      setImageUri(URL.createObjectURL(file))
+      setImageMeta({
+        name: file.name,
+        type: file.type,
+        size: file.size
+      })
+    }
+  }
+
 
   const handleFormSubmit = async () => {
-    console.log(imageUri)
-    if (!imageMeta.name || !gender || !category || !condition) {
+    if (!imageMeta.name || !gender || !category || !condition || !imageUri) {
       alert('Please fill all required fields.');
       return;
     }
 
     try {
       setUploading(true)
-      await addClothToDatabase({
-        name: imageMeta.name,
-        type: imageMeta.type,
-        size: imageMeta.size,
-        uri: imageUri
-      })
-      Toast('✅ Upload successful!');
-      router.replace('/home');
+      if (Platform.OS === "web" && webFile) {
+        await addClothToDatabaseWeb(webFile!)
+        Toast('✅ Upload successful!');
+        router.replace('/home');
+      }
+      else {
+        await addClothToDatabase({
+          name: imageMeta.name,
+          type: imageMeta.type,
+          size: imageMeta.size,
+          uri: imageUri
+        })
+        Toast('✅ Upload successful!');
+        router.replace('/home');
+      }
     }
     catch (error) {
       Toast('Upload Failed!' + error);
@@ -110,29 +137,47 @@ const Create = () => {
           <View style={styles.mainContainer}>
             <View style={styles.header}>
               {/* button to go back to the previous page */}
-              <TouchableOpacity style={styles.backButton}
-                onPress={() => router.replace("/home")}
-              >
-                {/* <Text style={styles.backButtonText}> {`<`} </Text> */}
-                <AntDesign name="arrowleft" size={34} color="black" />
-              </TouchableOpacity>
-              <Text style={styles.headerText}>Upload a cloth</Text>
+              {Platform.OS === "android" || Platform.OS === "ios" ?
+                <>
+                  <TouchableOpacity style={styles.backButton}
+                    onPress={() => router.replace("/home")}
+                  >
+                    {/* <Text style={styles.backButtonText}> {`<`} </Text> */}
+                    <AntDesign name="arrowleft" size={34} color="black" />
+                  </TouchableOpacity>
+                  <Text style={styles.headerText}>Upload a cloth</Text>
+                </> :
+                <input type="file"
+                  id='fileImageSelecter'
+                  style={{ display: "none" }}
+                  onChange={handleWebImagePress}
+
+                />
+              }
+
             </View>
             {/* View with image and buttons to change the image */}
             <View>
-              <Image
-                style={styles.image}
-                source={
-                  imageUri ? {
-                    uri: imageUri
-                  } :
-                    { uri: defaultImage }}
-              />
+              {Platform.OS === "web" ?
+
+                <img style={styles.image} src={imageUri ? imageUri : defaultImage} alt="image" />
+                :
+                <Image
+                  style={styles.image}
+                  source={
+                    imageUri ? {
+                      uri: imageUri
+                    } :
+                      { uri: defaultImage }}
+                />
+              }
+
 
               <TouchableOpacity style={[{ backgroundColor: Colors.light.gray }, styles.editImageButton]}
                 onPress={
                   handleImagePickerPress
                 }
+
               >
                 <Text style={{ color: "white", fontWeight: 600, flex: 1, textAlign: "center" }}>
                   Edit
@@ -209,6 +254,7 @@ const Create = () => {
             <TouchableOpacity
               style={[styles.submitButton, { backgroundColor: Colors.light.lime }]}
               onPress={handleFormSubmit}
+              disabled={uploading}
             >
               {uploading ?
                 <ActivityIndicator
