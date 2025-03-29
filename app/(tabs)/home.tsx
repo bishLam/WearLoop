@@ -16,7 +16,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { defaultImage } from '@/constants/defaultImage';
 
 //testing
-import { database, listAllClothes } from '@/lib/appwrite';
+import { database, listAllClothes, storage } from '@/lib/appwrite';
 
 
 const Home = () => {
@@ -27,6 +27,12 @@ const Home = () => {
   const isMobile = width < 768;
 
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [images, setImages] = useState<string[]>([])
+  // const [clothDetails, setClothDetails] = useState({
+  //   imageID: "",
+  //   description: "",
+  //   gender: ""
+  // })
 
   const handleLogout = async () => {
     await userAuth?.logout();
@@ -40,19 +46,38 @@ const Home = () => {
         router.replace("/")
       }, 0);
     }
+
   },
-    [userAuth?.current]);
+    [userAuth?.current])
+
+  useEffect(() => {
+    const fetchAllClothes = async () => {
+      try {
+        const allClothes = await listAllClothes();
+        allClothes.map((cloth, index) => {
+          const imageURL = storage.getFilePreview(cloth.bucketId, cloth.$id)
+          if (!images.includes(imageURL.toString())) {
+            setImages((prev) => [...prev, imageURL.toString()])
+          }
+        })
+      }
+      catch (error) {
+        console.log(error)
+      }
+    }
+    fetchAllClothes();
+  }, [])
 
 
-  const cardsData = async() => {
-    try{
-     let data =  await listAllClothes();
-     console.log(data)
+  const cardsData = async () => {
+    try {
+      let data = await listAllClothes();
+      console.log(data)
+    }
+    catch (error) {
+      console.log(error)
+    }
   }
-  catch(error){
-    console.log(error)
-  }
-}
 
   return (
     <SafeAreaView style={styles.container}>
@@ -96,28 +121,43 @@ const Home = () => {
           styles.cardContainer,
           isMobile ? styles.cardContainerMobile : styles.cardContainerDesktop
         ]}>
-          {/* {cardsData.map((item) => (
+
+          {/* {
+            images.length > 0 ?
+              <>
+                {images.map((image, index) => {
+                  console.log(image)
+                  return <Image key={index}
+                    style={{ width: 100, height: 100 }}
+                    source={{ uri: image }}
+                  />
+                })}
+              </>
+              :
+              <><Text>No images found</Text></>
+          } */}
+          {images.map((item, index) => (
             <View
-              key={item.id}
+              key={index}
               style={[
                 styles.card,
                 isMobile ? styles.cardMobile : styles.cardDesktop
               ]}
             >
               <Image
-                source={{ uri: item.image }}
+                source={{ uri: item }}
                 style={styles.cardImage}
                 resizeMode="contain"
               />
               <View style={styles.cardBody}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardText}>{item.text}</Text>
+                <Text style={styles.cardTitle}>"This is a placeholder title"</Text>
+                <Text style={styles.cardText}>This is a placeholder description</Text>
                 <TouchableOpacity style={styles.cardButton}>
                   <Text style={styles.cardButtonText}>View Details</Text>
                 </TouchableOpacity>
               </View>
             </View>
-          ))} */}
+          ))}
         </View>
 
 

@@ -18,26 +18,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { addClothToDatabase, addClothToDatabaseWeb } from '@/lib/appwrite';
+import { addClothImageToBucket, addClothImageToBucketWeb, addClothToDatabase } from '@/lib/appwrite';
 import Toast from '@/components/toast';
 import { defaultImage } from '@/constants/defaultImage';
 import { Colors } from '@/constants/Colors';
+import { ID } from 'react-native-appwrite';
 
 
 const Create = () => {
-  const [imageUri, setImageUri] = useState('');
+  const [imageUri, setImageUri] = useState("");
   const [imageMeta, setImageMeta] = useState({
-    name: '',
-    type: '',
+    name: "",
+    type: "",
     size: 0,
   });
-  const [gender, setGender] = useState('');
-  const [category, setCategory] = useState('');
-  const [condition, setCondition] = useState('');
-  const [description, setDescription] = useState('');
+  const [gender, setGender] = useState("");
+  const [category, setCategory] = useState("");
+  const [condition, setCondition] = useState("");
+  const [description, setDescription] = useState("");
   const [uploading, setUploading] = useState(false);
   const [webFile, setWebFile] = useState<File>();
-  const [imageBlob, setImageBlob] = useState<Blob | MediaSource>(new Blob())
 
   const categories = [
     { label: 'Shirts', value: 'Shirts' },
@@ -96,32 +96,64 @@ const Create = () => {
 
   const handleFormSubmit = async () => {
     if (!imageMeta.name || !gender || !category || !condition || !imageUri) {
-      alert('Please fill all required fields.');
+      Toast('Please fill all required fields.');
       return;
     }
 
     try {
       setUploading(true)
       if (Platform.OS === "web" && webFile) {
-        await addClothToDatabaseWeb(webFile!)
+        var id = ID.unique()
+        await addClothImageToBucketWeb(webFile!, id)
+        await addClothToDatabase(
+          description,
+          id,
+          gender,
+          condition,
+          category
+        )
         Toast('✅ Upload successful!');
         router.replace('/home');
       }
       else {
-        await addClothToDatabase({
+        var id = ID.unique()
+        await addClothImageToBucket({
           name: imageMeta.name,
           type: imageMeta.type,
           size: imageMeta.size,
           uri: imageUri
-        })
+        }, id)
+
+        await addClothToDatabase(
+          description, id, gender, condition, category
+        )
         Toast('✅ Upload successful!');
         router.replace('/home');
       }
     }
     catch (error) {
-      Toast('Upload Failed!' + error);
+      Toast('Upload Error' + error);
+      console.log(error)
+
     } finally {
       setUploading(false);
+      setImageUri('');
+      setImageMeta({
+        name: '',
+        type: '',
+        size: 0,
+      });
+      setGender('');
+      setCategory('');
+      setCondition('');
+      setDescription('');
+      setWebFile(undefined);
+      if (Platform.OS === "web") {
+        const fileInput = document.getElementById("fileImageSelecter") as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = '';
+        }
+      }
     }
   };
 
@@ -214,11 +246,12 @@ const Create = () => {
               <Text style={styles.titleText}>Select Category*</Text>
               <Dropdown
                 style={[{ borderBlockColor: Colors.light.gray }, styles.dropdownContainer]}
-                mode='default'
+                mode="default"
                 data={categories}
-                onChange={(e) => { setCategory(e) }}
+                onChange={(e) => { setCategory(e.value) }}
                 labelField={'label'}
                 valueField={'value'}
+                value={category}
                 activeColor={Colors.light.cyan}
 
               />
@@ -231,9 +264,10 @@ const Create = () => {
                 style={[{ borderBlockColor: Colors.light.gray }, styles.dropdownContainer]}
                 mode='default'
                 data={conditions}
-                onChange={(e) => { setCondition(e) }}
+                onChange={(e) => { setCondition(e.value) }}
                 labelField={'label'}
                 valueField={'value'}
+                value={condition}
                 activeColor={Colors.light.cyan}
               />
             </View>
@@ -246,6 +280,7 @@ const Create = () => {
                 placeholder="Enter description for your cloth"
                 style={styles.descriptionInput}
                 scrollEnabled
+                value={description}
                 submitBehavior="newline"
                 onChangeText={(e) => { setDescription(e) }}
               />
