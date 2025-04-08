@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { addClothImageToBucket, addClothImageToBucketWeb, addClothToDatabase } from '@/lib/appwrite';
+import { addClothImageToBucket, addClothImageToBucketWeb, addClothToDatabase } from '@/lib/appwriteFunctions';
 import Toast from '@/components/toast';
 import { defaultImage } from '@/constants/defaultImage';
 import { Colors } from '@/constants/Colors';
