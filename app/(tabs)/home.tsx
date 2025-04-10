@@ -18,7 +18,7 @@ import { cloth } from '@/lib/appwriteFunctions'
 
 //testing
 import { database, storage, client, config } from '@/lib/appwrite';
-import { listAllActiveClothes, listenForChanges } from '@/lib/appwriteFunctions';
+import { listAllActiveClothes, listenForChanges, getUserDetailsFromEmail, generateProfilePictureLink } from '@/lib/appwriteFunctions';
 import { CustomCard } from "../../components/CustomCard"
 import LoadingScreen from '../loadingScreen';
 
@@ -28,20 +28,22 @@ const Home = () => {
   const userAuth = useUser();
   const [allClothes, setAllClothes] = useState<cloth[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [userImage, setUserImage] = useState(defaultImage);
 
   const [showProfileModal, setShowProfileModal] = useState(false);
   const handleLogout = async () => {
     await userAuth?.logout();
   }
-  useEffect(() => {
-    if (!userAuth?.current) {
-      setTimeout(() => {
-        router.replace("/")
-      }, 0);
-    }
 
-  },
-    [userAuth?.current])
+  let user = userAuth?.current?.email!
+  useEffect(() => {
+     const getUserImage = async () => {
+      const  userDetails = await getUserDetailsFromEmail(user)
+      const userProfileLink = generateProfilePictureLink(userDetails?.profilePictureID)
+      setUserImage(userProfileLink)
+     }
+     getUserImage()
+  }, [user])
 
   useEffect(() => {
     setIsLoading(true)
@@ -75,7 +77,7 @@ const Home = () => {
       {isLoading ?
         <LoadingScreen />
         :
-        <ScrollView>
+        <View>
           <View style={styles.mainContainer}>
             <View style={styles.header}>
               <View style={styles.leftContainer}>
@@ -88,7 +90,7 @@ const Home = () => {
               </View>
               <TouchableOpacity onPress={() => setShowProfileModal(true)}>
                 <Image
-                  source={{ uri: defaultImage }}
+                  source={{uri:userImage}}
                   style={styles.profile}
                 />
               </TouchableOpacity>
@@ -139,7 +141,7 @@ const Home = () => {
 
 
 
-        </ScrollView>
+        </View>
       }
     </SafeAreaView>
   )
@@ -184,6 +186,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     resizeMode: 'contain',
+    borderRadius:50
   },
   searchContainer: {
     backgroundColor: '#fff',
@@ -242,3 +245,4 @@ const styles = StyleSheet.create({
     columnGap: 0
   }
 });
+

@@ -17,6 +17,7 @@ import { useUser } from '@/contexts/UserAuth';
 import Feather from '@expo/vector-icons/Feather';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { generateProfilePictureLink, getUserDetailsFromEmail } from '@/lib/appwriteFunctions';
 
 
 type Props = {
@@ -29,8 +30,20 @@ type Props = {
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const ProfileSlider = ({ visible, onClose, onLogout }: Props) => {
-
   const userAuth = useUser();
+  const [userImage, setUserImage] = useState("")
+
+  let user = userAuth?.current?.email!
+  useEffect(() => {
+     const getUserImage = async () => {
+      const  userDetails = await getUserDetailsFromEmail(user)
+      const userProfileLink = await generateProfilePictureLink(userDetails?.profilePictureID)
+      setUserImage(userProfileLink)
+     }
+     getUserImage()
+  }, [user])
+
+
   const handleSliderButtonPress = async (buttonName: string) => {
     if (buttonName === "profile") {
       router.push("/profile")
@@ -88,17 +101,10 @@ const ProfileSlider = ({ visible, onClose, onLogout }: Props) => {
             },
           ]}
         >
-          {/* Header Row with Back Button */}
-          {/* <View style={styles.headerRow}>
-            <TouchableOpacity onPress={onClose} style={styles.backButton}>
-              <AntDesign name="arrowleft" size={34} color="black" />
-            </TouchableOpacity>
-            <Text style={styles.title}>Menu</Text>
-          </View> */}
 
           {/* Logout Button */}
           <View style={styles.imageContainer}>
-            <Image style={styles.image} source={{ uri: defaultImage }} />
+            <Image style={styles.image} source={{ uri: userImage }}/>
           </View>
           <TouchableOpacity style={[styles.otherButtons, { backgroundColor: "transparent" }]} onPress={() => handleSliderButtonPress("home")}>
           <Feather name="home" size={24} color="black" />
@@ -177,6 +183,7 @@ const styles = StyleSheet.create({
   image: {
     height: 100,
     width: 100,
+    borderRadius:50
   },
 
   otherButtons: {

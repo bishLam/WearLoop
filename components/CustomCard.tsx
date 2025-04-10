@@ -2,9 +2,8 @@ import { TouchableOpacity, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { Platform, Image } from 'react-native'
 import { Colors } from '@/constants/Colors'
-import { defaultClothImage } from '@/constants/defaultImage'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { cloth } from '@/lib/appwriteFunctions'
+import { cloth, generateClothImageLink } from '@/lib/appwriteFunctions'
 import {router } from 'expo-router'
 
 
@@ -13,7 +12,7 @@ type cardPropsType = {
 }
 const handlePress = (cloth:cloth) => {
   router.push({
-    pathname: "/(tabs)/clothDetails",
+    pathname: "/clothDetails",
     params: {
       cloth: JSON.stringify(cloth)
     }
@@ -27,14 +26,14 @@ export const CustomCard = ({ cloth }: cardPropsType) => {
         [Platform.OS === "android" || Platform.OS === "ios" ? styles.phoneCardContainer : styles.webCardContainer,
         ]}>
         <View style={styles.cardImageContainer}>
-          <Image source={{ uri: defaultClothImage }} //imageUri is not supported on free plan. So using a default image for all the cloths
+          <Image source={{ uri: generateClothImageLink(cloth.documentID) }}
             style={styles.image}
             onError={(e) => console.log("Image error:", e.nativeEvent.error)}
           />
         </View>
 
         <View style={styles.cardBottomContainer}>
-          <Text style={styles.titleText}>{cloth.category}</Text>
+          <Text style={styles.titleText}>{cloth.clothTitle}</Text>
           <Text style={styles.descriptionText}>{cloth.description}</Text>
           <View style={styles.footerContainer}>
             <View style={styles.locationContainer}>
@@ -80,11 +79,9 @@ const styles = StyleSheet.create({
     flex: 1,
     height:150,
     width:"100%",
-    resizeMode: "contain",
+    resizeMode: "cover",
     borderBottomColor: "red",
-    paddingVertical: 10,
     borderBottomWidth: 2,
-
   },
 
   cardBottomContainer: {

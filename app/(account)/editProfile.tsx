@@ -8,24 +8,27 @@ import { Colors } from "../../constants/Colors"
 import AntDesign from '@expo/vector-icons/AntDesign'
 import { defaultImage } from '@/constants/defaultImage'
 import Toast from '@/components/toast'
+import { useUser } from '@/contexts/UserAuth'
+import { generateProfilePictureLink, userType } from '@/lib/appwriteFunctions'
+import { getUserDetailsFromEmail } from '@/lib/appwriteFunctions'
+import LoadingScreen from '../loadingScreen'
 
 const EditProfile = () => {
-  const [form, setForm] = useState({
+  const [isLoading, setisLoading] = useState(true)
+  const [] = useState()
+  const userContext = useUser();
+  const [form, setForm] = useState<userType>({
     firstName: "",
     lastName: "",
     email: "",
-    dob: ""
+    profilePictureID: ""
   })
-  const [errorSpot, setErrorSpot] = useState(
-    {
-      firstName: false,
-      lastName: false,
-      email: false,
-      dob: false,
-    }
-  )
-  const [error, setError] = useState("")
-
+  const [initialValues, setInitialValues] = useState<userType>({
+    email: "",
+    firstName: "",
+    lastName: "",
+    profilePictureID: ""   
+  })
   const [image, setImage] = useState('')
 
   const setOtherErrorsToFalse = () => {
@@ -37,27 +40,38 @@ const EditProfile = () => {
       dob: false,
     })
   }
+  const [errorSpot, setErrorSpot] = useState(
+    {
+      firstName: false,
+      lastName: false,
+      email: false,
+      dob: false,
+    }
+  )
+  const [error, setError] = useState("")
+
+
 
   const [saveButtonActive, setSaveButtonActive] = useState(false)
 
   const textChanged = () => {
-    var initialValues = {
-      email: "",
-      firstName: "",
-      lastName: ""
-    }
 
-    if (form.firstName != initialValues.firstName) {
+    if (form.firstName != initialValues!.firstName) {
       setSaveButtonActive(true)
       return
     }
 
-    if (form.lastName != initialValues.lastName) {
+    if (form.lastName != initialValues!.lastName) {
       setSaveButtonActive(true)
       return
     }
 
-    if (form.email != initialValues.email) {
+    if (form.email != initialValues!.email) {
+      setSaveButtonActive(true)
+      return
+    }
+
+    if(form.profilePictureID != initialValues!.profilePictureID){
       setSaveButtonActive(true)
       return
     }
@@ -65,11 +79,7 @@ const EditProfile = () => {
     setSaveButtonActive(false)
   }
 
-  const handleUploadButton = () => {
-    console.log(form, image)
-  }
-
-  const handleFormSubmit = async () => {
+  const handleSavePressed = () => {
     if (form.firstName.trim() == "") {
       setError("Email field is required")
       setErrorSpot((prev) => ({ ...prev, firstName: true }))
@@ -101,10 +111,6 @@ const EditProfile = () => {
 
     setOtherErrorsToFalse()
     setError("")
-
-  }
-
-  const handleSavePressed = () => {
     router.replace("/profile")
   }
 
@@ -122,19 +128,59 @@ const EditProfile = () => {
     });
 
     if(!result.canceled){
-      setImage(
-        result.assets[0].uri
-      )
+      setForm({
+        ...form, 
+        profilePictureID : result.assets[0].uri
+      })
     }
   }
 
   useEffect(() => {
     textChanged();
-  }, [form.firstName, form.lastName, form.email])
+  }, [form.firstName, form.lastName, form.email, form.profilePictureID])
+
+  useEffect(() => {
+      try {
+        setisLoading(true)
+        const userEmail = userContext?.current?.email!
+        if (userEmail) {
+          console.log("Loading state:", isLoading);
+          const getProfileDetails = async () => {
+            let userDetails = await getUserDetailsFromEmail(userEmail)
+            const profilePicture = await generateProfilePictureLink(userDetails?.profilePictureID)
+            setInitialValues({
+              email: userDetails?.email ?? "",
+              firstName: userDetails?.firstName ?? "",
+              lastName: userDetails?.lastName ?? "",
+              profilePictureID: profilePicture
+            })
+            setForm({
+              email: userDetails?.email ?? "",
+              firstName: userDetails?.firstName ?? "",
+              lastName: userDetails?.lastName ?? "",
+              profilePictureID: profilePicture
+            })
+          }
+          getProfileDetails()
+          
+          setisLoading(false)
+  
+        }
+      }
+      catch (error) {
+        console.log(error)
+      }
+      finally {
+  
+      }
+    }, [userContext?.current?.email!])
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical: "1%" }}>
+      {isLoading ?
+      (<LoadingScreen />)
+      :
+      (<ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical: "2%" }}>
         <View style={styles.headerContainer}>
           <View style={styles.leftHeader}>
             <TouchableOpacity
@@ -150,7 +196,7 @@ const EditProfile = () => {
           </Pressable>
         </View>
         <View style={styles.mainContainer}>
-          <Image style={styles.image} source={{uri: image || defaultImage}} />
+          <Image style={styles.image} source={{uri: form.profilePictureID}} />
           <TouchableOpacity style={[{ backgroundColor: Colors.light.gray }, styles.editButton]} 
           onPress={handleEditAvatarPress}
           >
@@ -162,7 +208,7 @@ const EditProfile = () => {
             <CustomInput
               title='First Name'
               error={errorSpot.firstName}
-              handleChangeText={(val) => { (setForm({ ...form, firstName: val })) }}
+              handleChangeText={(val) => { (setForm({ ...initialValues, firstName: val })) }}
               keyboardType='default'
               value={form.firstName}
               secureText={false}
@@ -172,7 +218,7 @@ const EditProfile = () => {
             <CustomInput
               title='Last Name'
               error={false}
-              handleChangeText={(val) => { setForm({ ...form, lastName: val }) }}
+              handleChangeText={(val) => { setForm({ ...initialValues, lastName: val }) }}
               keyboardType='default'
               value={form.lastName}
               secureText={false}
@@ -182,14 +228,16 @@ const EditProfile = () => {
           <CustomInput
             title='Email'
             error={false}
-            handleChangeText={(val) => { setForm({ ...form, email: val }) }}
+            handleChangeText={(val) => { setForm({ ...initialValues, email: val }) }}
             keyboardType='email-address'
             value={form.email}
             secureText={false}
             additionalStyles={{ width: "100%" }}
           />
         </View>
-      </ScrollView>
+      </ScrollView>)
+    }
+
     </SafeAreaView>
   )
 }
@@ -246,10 +294,11 @@ const styles = StyleSheet.create({
   },
 
   image: {
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 150,
     resizeMode: "contain",
-    marginTop: 20
+    marginTop: 20,
+    borderRadius:75
   },
   editButton: {
     borderRadius: 10,

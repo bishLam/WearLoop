@@ -12,7 +12,7 @@ const Messeges = () => {
         <View style={styles.headerContainer}>
           <View style={styles.leftHeaderContainer}>
             <TouchableOpacity style={styles.backButton}
-              onPress={() => router.replace("/home")}
+              onPress={() => router.back()}
             >
               <AntDesign name="arrowleft" size={34} color="black" />
             </TouchableOpacity>

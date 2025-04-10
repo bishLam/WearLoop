@@ -9,14 +9,6 @@ import { Colors } from "../../constants/Colors"
 const HomeLayout = () => {
   return (
     <>
-      {/* <Stack>
-      <Stack.Screen name='home' options={{headerShown:false}} />
-      <Stack.Screen name='create' options={{headerShown:false}} />
-      <Stack.Screen name='profile' options={{headerShown:false}} />
-      <Stack.Screen name='clothDetails' options={{headerShown:false}} />
-    </Stack> */}
-
-
       <Tabs backBehavior='history' screenOptions={{
         tabBarStyle: { height: 70, alignContent: "center", borderTopRightRadius: 10, borderTopStartRadius: 10 },
         headerShown: false,

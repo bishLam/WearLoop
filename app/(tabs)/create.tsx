@@ -23,9 +23,11 @@ import Toast from '@/components/toast';
 import { defaultImage } from '@/constants/defaultImage';
 import { Colors } from '@/constants/Colors';
 import { ID } from 'react-native-appwrite';
+import { useUser } from '@/contexts/UserAuth';
 
 
 const Create = () => {
+  const userContext = useUser();
   const [imageUri, setImageUri] = useState("");
   const [imageMeta, setImageMeta] = useState({
     name: "",
@@ -33,9 +35,11 @@ const Create = () => {
     size: 0,
   });
   const [gender, setGender] = useState("");
+  const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
   const [description, setDescription] = useState("");
+  const [postalCode, setPostalCode] = useState("");
   const [uploading, setUploading] = useState(false);
   const [webFile, setWebFile] = useState<File>();
 
@@ -95,7 +99,7 @@ const Create = () => {
 
 
   const handleFormSubmit = async () => {
-    if (!imageMeta.name || !gender || !category || !condition || !imageUri) {
+    if (!imageMeta.name || !gender || !category || !condition || !imageUri || !title) {
       Toast('Please fill all required fields.');
       return;
     }
@@ -104,29 +108,39 @@ const Create = () => {
       setUploading(true)
       if (Platform.OS === "web" && webFile) {
         var id = ID.unique()
-        await addClothImageToBucketWeb(webFile!, id)
+        
         await addClothToDatabase(
+          title,
           description,
           id,
           gender,
           condition,
-          category
+          category,
+          Number(postalCode),
+          userContext?.current?.email ?? ""
         )
+        await addClothImageToBucketWeb(webFile!, id)
         Toast('✅ Upload successful!');
         router.replace('/home');
       }
       else {
         var id = ID.unique()
+        await addClothToDatabase(
+          title,
+          description,
+          id,
+          gender,
+          condition,
+          category,
+          Number(postalCode),
+          userContext?.current?.email ?? ""
+        )
         await addClothImageToBucket({
           name: imageMeta.name,
           type: imageMeta.type,
           size: imageMeta.size,
           uri: imageUri
         }, id)
-
-        await addClothToDatabase(
-          description, id, gender, condition, category
-        )
         Toast('✅ Upload successful!');
         router.replace('/home');
       }
@@ -217,6 +231,19 @@ const Create = () => {
               </TouchableOpacity>
             </View>
 
+            <View style={styles.titleInputSectionContainer}>
+              <Text style={styles.titleText}>
+                Cloth Title*
+              </Text>
+              <TextInput 
+              style = {styles.clothTitleTextInput}
+              value={title}
+              onChangeText={(e) => setTitle(e)}
+              maxLength={50}
+              />
+                
+            </View>
+
             {/* View to set the cloth details */}
             <View style={styles.genderContainer}>
               {/* horizontal view to set the gender */}
@@ -242,37 +269,39 @@ const Create = () => {
 
 
             {/* View to select Category */}
-            <View >
-              <Text style={styles.titleText}>Select Category*</Text>
-              <Dropdown
-                style={[{ borderBlockColor: Colors.light.gray }, styles.dropdownContainer]}
-                mode="default"
-                data={categories}
-                onChange={(e) => { setCategory(e.value) }}
-                labelField={'label'}
-                valueField={'value'}
-                value={category}
-                activeColor={Colors.light.cyan}
+            <View style = {styles.categoryConditionContainer}>
+              <View style = {styles.categoryContainer}>
+                <Text style={styles.titleText}>Select Category*</Text>
+                <Dropdown
+                  style={[{ borderBlockColor: Colors.light.gray }, styles.dropdownContainer]}
+                  mode="default"
+                  data={categories}
+                  onChange={(e) => { setCategory(e.value) }}
+                  labelField={'label'}
+                  valueField={'value'}
+                  value={category}
+                  activeColor={Colors.light.cyan}
 
-              />
-            </View>
+                />
+              </View>
 
-            {/* View to select conditions */}
-            <View >
-              <Text style={styles.titleText}>Select Condition*</Text>
-              <Dropdown
-                style={[{ borderBlockColor: Colors.light.gray }, styles.dropdownContainer]}
-                mode='default'
-                data={conditions}
-                onChange={(e) => { setCondition(e.value) }}
-                labelField={'label'}
-                valueField={'value'}
-                value={condition}
-                activeColor={Colors.light.cyan}
-              />
+              {/* View to select conditions */}
+              <View style = {styles.categoryContainer}>
+                <Text style={styles.titleText}>Select Condition*</Text>
+                <Dropdown
+                  style={[{ borderBlockColor: Colors.light.gray }, styles.dropdownContainer]}
+                  mode='default'
+                  data={conditions}
+                  onChange={(e) => { setCondition(e.value) }}
+                  labelField={'label'}
+                  valueField={'value'}
+                  value={condition}
+                  activeColor={Colors.light.cyan}
+                />
+              </View>
             </View>
             {/* Description container */}
-            <View >
+            <View style={styles.titleInputSectionContainer}>
               <Text style={styles.titleText}>Description*</Text>
               <TextInput
                 multiline
@@ -285,6 +314,19 @@ const Create = () => {
                 onChangeText={(e) => { setDescription(e) }}
               />
             </View>
+            {/* Postal Code Input Section */}
+            <View style={styles.titleInputSectionContainer}>
+            <Text style={styles.titleText}>Enter Postal Code*</Text>
+            <TextInput 
+              style = {styles.clothTitleTextInput}
+              autoComplete='postal-code'
+              keyboardType='numeric'
+              value={postalCode}
+              placeholder='Enter your postal address'
+              maxLength={5}
+              onChangeText={(e) => setPostalCode(e)}
+              />
+            </View>
             {/* submit button */}
             <TouchableOpacity
               style={[styles.submitButton, { backgroundColor: Colors.light.lime }]}
@@ -292,9 +334,12 @@ const Create = () => {
               disabled={uploading}
             >
               {uploading ?
+              <>
                 <ActivityIndicator
-                  color={Colors.light.cyan}
+                  color={Colors.light.white}
                 />
+                <Text style={styles.submitButtonText}>Uploading</Text>
+                </>
                 :
                 <Text style={styles.submitButtonText}>Upload</Text>
               }
@@ -355,12 +400,24 @@ const styles = StyleSheet.create({
     width: 80,
     alignSelf: "center"
   },
+  titleInputSectionContainer:{
+    display:"flex",
+    flexDirection:"column",
+    gap: 10
+  },
+
+  clothTitleTextInput:{
+    borderColor: "black",
+    borderWidth:1,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius:10,
+  },
 
   genderContainer: {
     display: "flex",
     flexDirection: "column",
-    marginTop: 20,
-    gap: 10
+    gap: 5
   },
   titleText: {
     fontWeight: 600,
@@ -387,19 +444,31 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     flex: 1,
   },
+
+  categoryConditionContainer:{
+    display:"flex",
+    flexDirection:"row",
+    gap: 10,
+    justifyContent:"space-between"
+  },
+  categoryContainer: {
+    flex:1,
+    display: "flex",
+    flexDirection: "column",
+    gap: 5
+  },
   dropdownContainer: {
     borderRadius: 10,
     borderWidth: 1,
     paddingVertical: 10,
     paddingHorizontal: 15,
-    marginTop: 5
   },
   descriptionInput: {
     borderRadius: 10,
     borderWidth: 1,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    minHeight: 40
+    minHeight: 100
   },
   submitButton: {
     width: "100%",
