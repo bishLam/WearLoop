@@ -8,7 +8,8 @@ const LoadingScreen = () => {
         {
           alignContent: "center",
           justifyContent:"center",
-          flex:1
+          flex:1,
+          backgroundColor:"transparent"
         }
       }>
         <ActivityIndicator color={Colors.light.lime} size={"large"} style={{
@@ -20,4 +21,7 @@ const LoadingScreen = () => {
 
 export default LoadingScreen
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  
+
+})
