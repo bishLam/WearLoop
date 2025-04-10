@@ -51,6 +51,7 @@ export type cloth = {
   description: string,
   isActive: boolean,
   condition:string,
+  category:string,
   postalCode:string,
   createdDate: string,
   gender:string,
@@ -75,6 +76,7 @@ export const listAllActiveClothes = async () => {
       isActive: dataRow.isActive,
       condition:dataRow.condition,
       postalCode: dataRow.postalCode,
+      category: dataRow.category,
       createdDate:dataRow.$createdAt,
       gender:dataRow.gender,
       clothUri: imagePreview.toString()
@@ -108,6 +110,7 @@ export const listenForChanges = (callback: (newCloth: cloth) => void) => {
             postalCode: response.payload.postalCode,
             createdDate: response.payload.$createdAt,
             gender: response.payload.gender,
+            category: response.payload.category,
             clothUri: imageUri.toString()
           };
           callback(newCloth)

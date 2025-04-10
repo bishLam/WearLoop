@@ -118,10 +118,7 @@ const Home = () => {
               columnWrapperStyle={styles.flatlistItemsContainer}
               renderItem={({ item }) =>
                 <CustomCard
-                  imageUri={item.clothUri}
-                  title={item.description}
-                  location={item.postalCode}
-                  condition={item.condition}
+                cloth = {item}
                 />
               }
 

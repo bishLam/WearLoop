@@ -1,45 +1,53 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { TouchableOpacity, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { Platform, Image } from 'react-native'
 import { Colors } from '@/constants/Colors'
-import { config, storage } from '@/lib/appwrite'
 import { defaultClothImage } from '@/constants/defaultImage'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-
+import { cloth } from '@/lib/appwriteFunctions'
+import {router } from 'expo-router'
 
 
 type cardPropsType = {
-  imageUri: string,
-  title:string,
-  location:string,
-  condition:string
+  cloth: cloth
+}
+const handlePress = (cloth:cloth) => {
+  router.push({
+    pathname: "/(tabs)/clothDetails",
+    params: {
+      cloth: JSON.stringify(cloth)
+    }
+  })
 }
 
-export const CustomCard = ({ imageUri, title, location, condition }: cardPropsType) => {
+export const CustomCard = ({ cloth }: cardPropsType) => {
   return (
-    <View style={
-      [Platform.OS === "android" || Platform.OS === "ios" ? styles.phoneCardContainer : styles.webCardContainer,
-      ]}>
-      <View style={styles.cardImageContainer}>
-        <Image source={{ uri: defaultClothImage }} //imageUri is not supported on free plan. So using a default image for all the cloths
-          style={styles.image}
-          onError={(e) => console.log("Image error:", e.nativeEvent.error)}
-        />
-      </View>
+    <TouchableOpacity onPress={() => handlePress(cloth)}>
+      <View style={
+        [Platform.OS === "android" || Platform.OS === "ios" ? styles.phoneCardContainer : styles.webCardContainer,
+        ]}>
+        <View style={styles.cardImageContainer}>
+          <Image source={{ uri: defaultClothImage }} //imageUri is not supported on free plan. So using a default image for all the cloths
+            style={styles.image}
+            onError={(e) => console.log("Image error:", e.nativeEvent.error)}
+          />
+        </View>
 
-      <View style={styles.cardBottomContainer}>
-        <Text style={styles.titleText}>{title}</Text>
-        <View style={styles.footerContainer}>
-          <View style={styles.locationContainer}>
-            <Text>{location}</Text>
-            <Text>{condition}</Text>
-          </View>
-          <View>
-            <MaterialCommunityIcons size={28} color={Colors.light.lime} name="facebook-messenger" />
+        <View style={styles.cardBottomContainer}>
+          <Text style={styles.titleText}>{cloth.category}</Text>
+          <Text style={styles.descriptionText}>{cloth.description}</Text>
+          <View style={styles.footerContainer}>
+            <View style={styles.locationContainer}>
+              <Text>{cloth.postalCode}</Text>
+              <Text>{cloth.condition}</Text>
+            </View>
+            <View>
+              <MaterialCommunityIcons size={28} color={Colors.light.lime} name="facebook-messenger" />
+            </View>
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }
 
@@ -51,7 +59,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 20,
     minHeight: 300,
-    maxHeight:500,
     borderColor: "gray",
     borderWidth: 1,
   },
@@ -67,32 +74,34 @@ const styles = StyleSheet.create({
 
   cardImageContainer: {
     maxWidth: "100%",
-    height: "50%"
   },
 
   image: {
     flex: 1,
+    height:150,
+    width:"100%",
     resizeMode: "contain",
     borderBottomColor: "red",
     paddingVertical: 10,
     borderBottomWidth: 2,
-    // borderRadius:20
+
   },
 
   cardBottomContainer: {
     flex: 1,
     flexDirection: "column",
-    // justifyContent:"space-between",
     gap:20,
     paddingVertical:5,
     paddingHorizontal:10,
-    // borderColor:"red",
-    // borderWidth:2
   },
 
   titleText: {
-    fontSize: 24,
+    fontSize: 20,
     color: "black"
+  },
+  descriptionText:{
+    fontStyle:"italic",
+    fontWeight:"400"
   },
 
   footerContainer: {
