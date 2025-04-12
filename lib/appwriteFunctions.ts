@@ -20,7 +20,7 @@ export type cloth = {
   uploaderID: string
 }
 
-type fileType = {
+export type fileType = {
   name: string,
   type: string,
   size: number,
@@ -31,7 +31,8 @@ export type userType = {
   email: string,
   firstName: string,
   lastName: string,
-  profilePictureID: string
+  profilePictureID: string,
+  userID:string
 }
 
 export const addUserToCollection = async (firstName: string, lastName: string, email: string) => {
@@ -43,7 +44,7 @@ export const addUserToCollection = async (firstName: string, lastName: string, e
 }
 
 export const addClothImageToBucket = async (file: fileType, imageID: string) => {
-  let response = await storage.createFile(config.clothesBucketID, imageID, file)
+  await storage.createFile(config.clothesBucketID, imageID, file)
   //  console.log(response)
 }
 
@@ -105,6 +106,7 @@ export const listAllActiveClothes = async () => {
 };
 
 export const listenForChanges = (callback: (newCloth: cloth) => void) => {
+  console.log("listenForChanges function called")
   client.subscribe(`databases.${config.databaseID}.collections.${config.productCollectionID}.documents`, response => {
     console.log(response)
     const eventType = response.events[0]
@@ -136,7 +138,7 @@ export const generateClothImageLink = (documentID: string) => {
   return `https://cloud.appwrite.io/v1/storage/buckets/${config.clothesBucketID}/files/${documentID}/view?project=67da10e7003b52bb1543&mode=admin`
 }
 
-export const generateProfilePictureLink = (documentID:string) => {
+export const generateProfilePictureLink = (documentID: string) => {
   // console.log(`https://cloud.appwrite.io/v1/storage/buckets/${config.userImageBucketID}/files/${documentID}/view?project=67da10e7003b52bb1543&mode=admin`)
   return `https://cloud.appwrite.io/v1/storage/buckets/${config.userImageBucketID}/files/${documentID}/view?project=67da10e7003b52bb1543&mode=admin`
 }
@@ -153,8 +155,8 @@ export const getUserDetailsFromEmail = async (email: string) => {
       firstName: document.firstName,
       lastName: document.lastName,
       profilePictureID: document.pictureID,
+      userID:document.$id
     }
-
     return user
 
   }
@@ -164,10 +166,40 @@ export const getUserDetailsFromEmail = async (email: string) => {
 
 }
 
-export const getTotalPostsByUserFromEmail = async (email:string) => {
+export const getTotalPostsByUserFromEmail = async (email: string) => {
   let response = await database.listDocuments(config.databaseID, config.productCollectionID, [
     Query.equal("uploaderID", email)
   ])
   return response.documents.length
 }
+
+export const updateUserProfilePicture = async (fileID: string, image: fileType) => {
+  const response = storage.updateFile(config.clothesBucketID, fileID,)
+}
+
+export const updateUserDetails = async (documentID: string, pictureID: string, firstName?: string, lastName?: string, email?: string) => {
+  try {
+    const response = await database.updateDocument(config.databaseID, config.usersCollectionID, documentID, {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      pictureID: pictureID
+    })
+
+  }
+
+  catch (error) {
+    console.log(error)
+  }
+}
+
+export const addUserImageToBucket = async (file: fileType, imageID: string) => {
+  await storage.createFile(config.userImageBucketID, imageID, file)
+  //  console.log(response)
+}
+
+export const deleteModifiedImageFromBucket = async (imageID: string) => {
+  await storage.deleteFile(config.userImageBucketID, imageID)
+}
+
 

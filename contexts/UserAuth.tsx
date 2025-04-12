@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native'
 import react, { useState, useEffect, useContext, createContext }  from 'react'
 
-import { account, database, addUserToCollection } from "../lib/appwrite"
+import { account, database } from "../lib/appwrite"
+import {addUserToCollection} from "../lib/appwriteFunctions"
 import { ID, Models } from 'react-native-appwrite'
 import { router } from 'expo-router'
 import Toast from '@/components/toast'

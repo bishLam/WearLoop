@@ -36,6 +36,7 @@ const Home = () => {
   }
 
   let user = userAuth?.current?.email!
+  // fetches user profile
   useEffect(() => {
      const getUserImage = async () => {
       const  userDetails = await getUserDetailsFromEmail(user)
@@ -45,6 +46,7 @@ const Home = () => {
      getUserImage()
   }, [user])
 
+  // fetch all active clothes 
   useEffect(() => {
     setIsLoading(true)
     const fetchAllActiveClothes = async () => {
@@ -61,15 +63,15 @@ const Home = () => {
     fetchAllActiveClothes()
   }, [])
 
+  //listen for changes in the appwrite document for realtime support
   useEffect(() => {
-    //listen for changes in the appwrite document for realtime support
     const unsubscribe = () => listenForChanges((newCloth) => {
       console.log("New cloth added: \n", newCloth);
       setAllClothes(prevCloths => [...prevCloths, newCloth])
     });
 
     return () => unsubscribe()
-  }, [])
+  }, [`databases.${config.databaseID}.collections.${config.productCollectionID}.documents`])
 
 
   return (
@@ -185,7 +187,7 @@ const styles = StyleSheet.create({
   profile: {
     width: 40,
     height: 40,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     borderRadius:50
   },
   searchContainer: {

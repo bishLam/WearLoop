@@ -34,11 +34,16 @@ const TabLayout = ({ selectedItem }: TabLayoutType) => {
 }
 
 
-
+const initialUser: userType = {
+  firstName: "",
+  lastName: "",
+  profilePictureID: defaultImage,
+  email: ""
+}
 const Profile = () => {
   const userContext = useUser();
   const [selectedTab, setSelectedTab] = useState("posts");
-  const [user, setUser] = useState<userType>();
+  const [user, setUser] = useState<userType>(initialUser);
   const [totalPosts, setTotalPosts] = useState(0);
   const [isLoading, setisLoading] = useState(false);
 

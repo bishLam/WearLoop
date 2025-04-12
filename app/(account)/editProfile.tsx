@@ -9,27 +9,36 @@ import AntDesign from '@expo/vector-icons/AntDesign'
 import { defaultImage } from '@/constants/defaultImage'
 import Toast from '@/components/toast'
 import { useUser } from '@/contexts/UserAuth'
-import { generateProfilePictureLink, userType } from '@/lib/appwriteFunctions'
+import { addUserImageToBucket, deleteModifiedImageFromBucket, fileType, generateProfilePictureLink, updateUserDetails, userType } from '@/lib/appwriteFunctions'
 import { getUserDetailsFromEmail } from '@/lib/appwriteFunctions'
 import LoadingScreen from '../loadingScreen'
+import { ID } from 'react-native-appwrite'
 
 const EditProfile = () => {
   const [isLoading, setisLoading] = useState(true)
   const [] = useState()
   const userContext = useUser();
+  const [userDetails, setUserDetails] = useState<userType>()
   const [form, setForm] = useState<userType>({
     firstName: "",
     lastName: "",
     email: "",
-    profilePictureID: ""
+    profilePictureID: defaultImage,
+    userID: ""
   })
   const [initialValues, setInitialValues] = useState<userType>({
     email: "",
     firstName: "",
     lastName: "",
-    profilePictureID: ""   
+    profilePictureID: defaultImage,
+    userID:""
   })
-  const [image, setImage] = useState('')
+  const [image, setImage] = useState<fileType>({
+    name: "",
+    type: "",
+    size: 0,
+    uri: ""
+  })
 
   const setOtherErrorsToFalse = () => {
     setErrorSpot({
@@ -71,7 +80,7 @@ const EditProfile = () => {
       return
     }
 
-    if(form.profilePictureID != initialValues!.profilePictureID){
+    if (form.profilePictureID != initialValues!.profilePictureID) {
       setSaveButtonActive(true)
       return
     }
@@ -79,7 +88,7 @@ const EditProfile = () => {
     setSaveButtonActive(false)
   }
 
-  const handleSavePressed = () => {
+  const handleSavePressed = async () => {
     if (form.firstName.trim() == "") {
       setError("Email field is required")
       setErrorSpot((prev) => ({ ...prev, firstName: true }))
@@ -111,132 +120,175 @@ const EditProfile = () => {
 
     setOtherErrorsToFalse()
     setError("")
-    router.replace("/profile")
+
+
+    //here we do the update part. 
+    try {
+      //upload new image to the bucket if there is any
+      if(image.name !== "" && image){
+        const id = ID.unique()
+        await addUserImageToBucket(image, id)
+        await updateUserDetails(userDetails?.userID ?? "", id, form.firstName, form.lastName)
+        await deleteModifiedImageFromBucket(userDetails?.profilePictureID ?? "")
+        router.back()
+        return
+      }
+
+      if(image.name == ""){
+        await updateUserDetails(userDetails?.userID ?? "", userDetails?.profilePictureID ?? "", form.firstName, form.lastName)
+        router.back()
+      }
+    }
+    catch (error) {
+      Toast(error + "")
+    }
+
   }
 
   const handleEditAvatarPress = async () => {
     let permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if(!permission.granted){
+    if (!permission.granted) {
       Toast("We need camera permission to set your profile picture. Please give us the permission by going into your settings and try again.")
       return
     }
 
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
-      
+      aspect: [1,1]
+
     });
 
-    if(!result.canceled){
+    if (!result.canceled) {
+      const assetReceived = result.assets[0]
       setForm({
-        ...form, 
-        profilePictureID : result.assets[0].uri
+        ...form,
+        profilePictureID: assetReceived.uri
       })
+
+      setImage({
+        name: assetReceived.fileName ?? "",
+        type: assetReceived.mimeType ?? "",
+        size: assetReceived.fileSize ?? 0,
+        uri: assetReceived.uri ?? ""
+      })
+      
     }
   }
 
+  // checks if the save button should be active on every text or image change
   useEffect(() => {
     textChanged();
   }, [form.firstName, form.lastName, form.email, form.profilePictureID])
 
+  //sets up initial values to be put
   useEffect(() => {
-      try {
-        setisLoading(true)
-        const userEmail = userContext?.current?.email!
-        if (userEmail) {
-          console.log("Loading state:", isLoading);
-          const getProfileDetails = async () => {
-            let userDetails = await getUserDetailsFromEmail(userEmail)
-            const profilePicture = await generateProfilePictureLink(userDetails?.profilePictureID)
-            setInitialValues({
-              email: userDetails?.email ?? "",
-              firstName: userDetails?.firstName ?? "",
-              lastName: userDetails?.lastName ?? "",
-              profilePictureID: profilePicture
-            })
-            setForm({
-              email: userDetails?.email ?? "",
-              firstName: userDetails?.firstName ?? "",
-              lastName: userDetails?.lastName ?? "",
-              profilePictureID: profilePicture
-            })
-          }
-          getProfileDetails()
-          
-          setisLoading(false)
-  
+    try {
+      setisLoading(true)
+      const userEmail = userContext?.current?.email!
+      if (userEmail) {
+        const getProfileDetails = async () => {
+          let receivedUserDetails = await getUserDetailsFromEmail(userEmail)
+          setUserDetails({
+            firstName: receivedUserDetails?.firstName ?? "",
+            lastName: receivedUserDetails?.lastName ?? "",
+            email: receivedUserDetails?.email ?? "",
+            profilePictureID: receivedUserDetails?.profilePictureID ?? "",
+            userID: receivedUserDetails?.userID ?? ""
+          })
+
+          const profilePicture = generateProfilePictureLink(receivedUserDetails?.profilePictureID!)
+          setInitialValues({
+            email: receivedUserDetails?.email ?? "",
+            firstName: receivedUserDetails?.firstName ?? "",
+            lastName: receivedUserDetails?.lastName ?? "",
+            userID: receivedUserDetails?.userID ?? "",
+            profilePictureID: profilePicture
+          })
+          setForm({
+            email: receivedUserDetails?.email ?? "",
+            firstName: receivedUserDetails?.firstName ?? "",
+            lastName: receivedUserDetails?.lastName ?? "",
+            userID: receivedUserDetails?.userID ?? "",
+            profilePictureID: profilePicture
+          })
         }
+        getProfileDetails()
+
+        setisLoading(false)
+
       }
-      catch (error) {
-        console.log(error)
-      }
-      finally {
-  
-      }
-    }, [userContext?.current?.email!])
+    }
+    catch (error) {
+      console.log(error)
+    }
+    finally {
+
+    }
+  }, [userContext?.current?.email!])
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {isLoading ?
-      (<LoadingScreen />)
-      :
-      (<ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical: "2%" }}>
-        <View style={styles.headerContainer}>
-          <View style={styles.leftHeader}>
-            <TouchableOpacity
-              onPress={() => router.back()}
+        (<LoadingScreen />)
+        :
+        (<ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical: "2%" }}>
+          <View style={styles.headerContainer}>
+            <View style={styles.leftHeader}>
+              <TouchableOpacity
+                onPress={() => router.back()}
+              >
+                {/* <Text style={styles.backButtonText}> {`<`} </Text> */}
+                <AntDesign name="arrowleft" size={34} color="black" />
+              </TouchableOpacity>
+              <Text style={styles.headerText}>Edit Profile</Text>
+            </View>
+            <Pressable onPress={handleSavePressed} style={[!saveButtonActive && styles.saveButtonDefault, saveButtonActive && styles.saveButtonActive]} disabled={!saveButtonActive}>
+              <Text style={[!saveButtonActive && styles.saveTextDefault, saveButtonActive && styles.saveTextActive]}>Save</Text>
+            </Pressable>
+          </View>
+          <View style={styles.mainContainer}>
+            <Image style={styles.image} source={{ uri: form.profilePictureID }} />
+            <TouchableOpacity style={[{ backgroundColor: Colors.light.gray }, styles.editButton]}
+              onPress={handleEditAvatarPress}
             >
-              {/* <Text style={styles.backButtonText}> {`<`} </Text> */}
-              <AntDesign name="arrowleft" size={34} color="black" />
+              <Text style={{ color: "white", fontWeight: 600 }}>
+                Edit
+              </Text>
             </TouchableOpacity>
-            <Text style={styles.headerText}>Edit Profile</Text>
-          </View>
-          <Pressable onPress={handleSavePressed} style={[!saveButtonActive && styles.saveButtonDefault, saveButtonActive && styles.saveButtonActive]}>
-            <Text style={[!saveButtonActive && styles.saveTextDefault, saveButtonActive && styles.saveTextActive]}>Save</Text>
-          </Pressable>
-        </View>
-        <View style={styles.mainContainer}>
-          <Image style={styles.image} source={{uri: form.profilePictureID}} />
-          <TouchableOpacity style={[{ backgroundColor: Colors.light.gray }, styles.editButton]} 
-          onPress={handleEditAvatarPress}
-          >
-            <Text style={{ color: "white", fontWeight: 600 }}>
-              Edit
-            </Text>
-          </TouchableOpacity>
-          <View style={styles.namesInputContainer}>
-            <CustomInput
-              title='First Name'
-              error={errorSpot.firstName}
-              handleChangeText={(val) => { (setForm({ ...initialValues, firstName: val })) }}
-              keyboardType='default'
-              value={form.firstName}
-              secureText={false}
-              additionalStyles={{ flex: 1 }}
+            <View style={styles.namesInputContainer}>
+              <CustomInput
+                title='First Name'
+                error={errorSpot.firstName}
+                handleChangeText={(val) => { (setForm({ ...initialValues, firstName: val })) }}
+                keyboardType='default'
+                value={form.firstName}
+                secureText={false}
+                additionalStyles={{ flex: 1 }}
 
-            />
+              />
+              <CustomInput
+                title='Last Name'
+                error={false}
+                handleChangeText={(val) => { setForm({ ...initialValues, lastName: val }) }}
+                keyboardType='default'
+                value={form.lastName}
+                secureText={false}
+                additionalStyles={{ flex: 1 }}
+              />
+            </View>
             <CustomInput
-              title='Last Name'
+              title='Email'
               error={false}
-              handleChangeText={(val) => { setForm({ ...initialValues, lastName: val }) }}
-              keyboardType='default'
-              value={form.lastName}
+              handleChangeText={(val) => { setForm({ ...initialValues, email: val }) }}
+              keyboardType='email-address'
+              value={form.email}
               secureText={false}
-              additionalStyles={{ flex: 1 }}
+              additionalStyles={{ width: "100%" }}
             />
           </View>
-          <CustomInput
-            title='Email'
-            error={false}
-            handleChangeText={(val) => { setForm({ ...initialValues, email: val }) }}
-            keyboardType='email-address'
-            value={form.email}
-            secureText={false}
-            additionalStyles={{ width: "100%" }}
-          />
-        </View>
-      </ScrollView>)
-    }
+        </ScrollView>)
+      }
 
     </SafeAreaView>
   )
@@ -247,21 +299,21 @@ export default EditProfile
 const styles = StyleSheet.create({
 
   headerContainer: {
-    display:"flex",
+    display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
   },
   leftHeader: {
     display: "flex",
     flexDirection: "row",
-    flex:1
+    flex: 1
   },
   headerText: {
     fontSize: 25,
     fontWeight: "600",
     flex: 1,
     textAlign: "center",
-    paddingLeft:29
+    paddingLeft: 29
   },
 
   saveButtonDefault: {
@@ -296,9 +348,9 @@ const styles = StyleSheet.create({
   image: {
     width: 150,
     height: 150,
-    resizeMode: "contain",
+    resizeMode: "cover",
     marginTop: 20,
-    borderRadius:75
+    borderRadius: 75
   },
   editButton: {
     borderRadius: 10,
