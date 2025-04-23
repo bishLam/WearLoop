@@ -151,7 +151,7 @@ export const getUserDetailsFromEmail = async (email: string) => {
     let document = response.documents[0]
 
     let user = {
-      email: email,
+      email: document.email,
       firstName: document.firstName,
       lastName: document.lastName,
       profilePictureID: document.pictureID,
@@ -200,6 +200,42 @@ export const addUserImageToBucket = async (file: fileType, imageID: string) => {
 
 export const deleteModifiedImageFromBucket = async (imageID: string) => {
   await storage.deleteFile(config.userImageBucketID, imageID)
+}
+
+export const listAllClothesByUser = async(uploaderID: string) => {
+  let response = await database.listDocuments(config.databaseID, config.productCollectionID, [
+    Query.equal('uploaderID', uploaderID)
+  ])
+  let documents = response.documents;
+  let clothDetails: cloth[] = []
+
+  try {
+    for (const document of documents) {
+      let dataRow = await database.getDocument(config.databaseID, config.productCollectionID, document.$id);
+      let imagePreview = storage.getFilePreview(config.clothesBucketID, document.imageID);
+      let singleCloth: cloth = {
+        documentID: dataRow.$id,
+        clothTitle: dataRow.title,
+        imageID: dataRow.imageID,
+        description: dataRow.description,
+        isActive: dataRow.isActive,
+        condition: dataRow.condition,
+        postalCode: dataRow.postalCode,
+        category: dataRow.category,
+        createdDate: dataRow.$createdAt,
+        gender: dataRow.gender,
+        clothUri: imagePreview.toString(),
+        uploaderID: dataRow.uploaderID
+      }
+
+      clothDetails.push(singleCloth)
+    }
+    // console.log(clothDetails.length)
+    return clothDetails
+  }
+  catch (error) {
+    console.log(error)
+  }
 }
 
 

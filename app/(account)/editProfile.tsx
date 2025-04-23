@@ -16,6 +16,7 @@ import { ID } from 'react-native-appwrite'
 
 const EditProfile = () => {
   const [isLoading, setisLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [] = useState()
   const userContext = useUser();
   const [userDetails, setUserDetails] = useState<userType>()
@@ -89,6 +90,7 @@ const EditProfile = () => {
   }
 
   const handleSavePressed = async () => {
+    setIsSubmitting(true)
     if (form.firstName.trim() == "") {
       setError("Email field is required")
       setErrorSpot((prev) => ({ ...prev, firstName: true }))
@@ -125,6 +127,7 @@ const EditProfile = () => {
     //here we do the update part. 
     try {
       //upload new image to the bucket if there is any
+      setIsSubmitting(true)
       if(image.name !== "" && image){
         const id = ID.unique()
         await addUserImageToBucket(image, id)
@@ -141,6 +144,9 @@ const EditProfile = () => {
     }
     catch (error) {
       Toast(error + "")
+    }
+    finally{
+      setIsSubmitting(false)
     }
 
   }
@@ -229,7 +235,7 @@ const EditProfile = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {isLoading ?
+      {isLoading || isSubmitting ?
         (<LoadingScreen />)
         :
         (<ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical: "2%" }}>

@@ -1,26 +1,26 @@
 import {
   StyleSheet, Text, Image, TextInput,
-  View, ScrollView, TouchableOpacity
+  View, TouchableOpacity
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useWindowDimensions, FlatList } from 'react-native';
+import { FlatList } from 'react-native';
 import ProfileSlider from '@/components/ProfileSlider';
 
 import { useUser } from '@/contexts/UserAuth'
 import { useEffect } from 'react';
 import { useState } from 'react';
-
-import { router } from 'expo-router';
 import React from 'react';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { defaultImage } from '@/constants/defaultImage';
 import { cloth } from '@/lib/appwriteFunctions'
 
 //testing
-import { database, storage, client, config } from '@/lib/appwrite';
+import { config } from '@/lib/appwrite';
 import { listAllActiveClothes, listenForChanges, getUserDetailsFromEmail, generateProfilePictureLink } from '@/lib/appwriteFunctions';
 import { CustomCard } from "../../components/CustomCard"
 import LoadingScreen from '../loadingScreen';
+
+
 
 
 const Home = () => {
@@ -29,6 +29,49 @@ const Home = () => {
   const [allClothes, setAllClothes] = useState<cloth[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [userImage, setUserImage] = useState(defaultImage);
+  const listHeaderComponent = () => {
+
+    return <SafeAreaView style={styles.container}>
+        <View>
+          <View style={styles.mainContainer}>
+            <View style={styles.header}>
+              <View style={styles.leftContainer}>
+                <Image
+                  source={require('../../assets/icons/logo.png')}
+                  style={styles.logo}
+                />
+                <Text style={styles.welcomeText}>Welcome back</Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowProfileModal(true)}>
+                <Image
+                  source={{ uri: userImage }}
+                  style={styles.profile}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.inputcontainer}>
+              <TextInput
+                style={styles.inputtext}
+                placeholder="Search"
+              />
+              <TouchableOpacity
+                style={styles.searchButton}
+                onPress={() => {
+                  // Add search functionality here
+                }}
+              >
+                <FontAwesome5 name="search" size={20} color="#007bff" />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.clothesContainer}>
+            <Text style={styles.headerText}>We thought you might like these</Text>
+          </View>
+        </View>
+    </SafeAreaView>
+
+  }
 
   const [showProfileModal, setShowProfileModal] = useState(false);
   const handleLogout = async () => {
@@ -38,12 +81,12 @@ const Home = () => {
   let user = userAuth?.current?.email!
   // fetches user profile
   useEffect(() => {
-     const getUserImage = async () => {
-      const  userDetails = await getUserDetailsFromEmail(user)
+    const getUserImage = async () => {
+      const userDetails = await getUserDetailsFromEmail(user)
       const userProfileLink = generateProfilePictureLink(userDetails?.profilePictureID)
       setUserImage(userProfileLink)
-     }
-     getUserImage()
+    }
+    getUserImage()
   }, [user])
 
   // fetch all active clothes 
@@ -75,77 +118,40 @@ const Home = () => {
 
 
   return (
-    <SafeAreaView style={styles.container}>
-      {isLoading ?
-        <LoadingScreen />
-        :
-        <View>
-          <View style={styles.mainContainer}>
-            <View style={styles.header}>
-              <View style={styles.leftContainer}>
-
-                <Image
-                  source={require('../../assets/icons/logo.png')}
-                  style={styles.logo}
-                />
-                <Text style={styles.welcomeText}>Welcome back</Text>
-              </View>
-              <TouchableOpacity onPress={() => setShowProfileModal(true)}>
-                <Image
-                  source={{uri:userImage}}
-                  style={styles.profile}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.inputcontainer}>
-              <TextInput
-                style={styles.inputtext}
-                placeholder="Search"
-              />
-              <TouchableOpacity
-                style={styles.searchButton}
-                onPress={() => {
-                  // Add search functionality here
-                }}
-              >
-                <FontAwesome5 name="search" size={20} color="#007bff" />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.clothesContainer}>
-            <Text style={styles.headerText}>We thought you might like these</Text>
+    <>
+      {
+        !isLoading ?
+          <>
             <FlatList
               data={allClothes}
               numColumns={2}
               columnWrapperStyle={styles.flatlistItemsContainer}
+              style = {{backgroundColor: "#fff"}}
+              ListHeaderComponent={listHeaderComponent}
               renderItem={({ item }) =>
                 <CustomCard
-                cloth = {item}
+                  cloth={item}
                 />
               }
-
-
               keyExtractor={item => item.documentID}
             />
-          </View>
+            <ProfileSlider
+              visible={showProfileModal}
+              onClose={() => setShowProfileModal(false)}
+              onLogout={async () => {
+                setShowProfileModal(false);
+                await handleLogout();
+              }}
+            />
+          </>
+          :
+          <LoadingScreen />
+    }
 
 
-          <ProfileSlider
-            visible={showProfileModal}
-            onClose={() => setShowProfileModal(false)}
-            onLogout={async () => {
-              setShowProfileModal(false);
-              await handleLogout();
-            }}
-          />
 
+    </>
 
-
-        </View>
-      }
-    </SafeAreaView>
   )
 }
 
@@ -164,7 +170,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    // paddingHorizontal: 20,
     paddingBottom: 5,
     borderBottomWidth: 2,
     borderBottomColor: '#ddd',
@@ -188,7 +193,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     resizeMode: 'cover',
-    borderRadius:50
+    borderRadius: 50
   },
   searchContainer: {
     backgroundColor: '#fff',
@@ -198,12 +203,6 @@ const styles = StyleSheet.create({
   searchInputContainer: {
     backgroundColor: '#eee',
   },
-  // contentPlaceholder: {
-  //   marginTop: 20,
-  //   fontSize: 18,
-  //   textAlign: 'center',
-  //   color: '#666',
-  // },
   inputcontainer: {
     height: 48,
     backgroundColor: '#f5f5f5',

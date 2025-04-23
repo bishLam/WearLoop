@@ -11,8 +11,10 @@ type cardPropsType = {
   cloth: cloth
 }
 const handlePress = (cloth:cloth) => {
+  // console.log(cloth)
   router.push({
     pathname: "/clothDetails",
+    
     params: {
       cloth: JSON.stringify(cloth)
     }
@@ -21,6 +23,11 @@ const handlePress = (cloth:cloth) => {
 
 export const CustomCard = ({ cloth }: cardPropsType) => {
   return (
+    cloth.clothUri == "" ?
+    <Text>
+      You do not have any clothes to view here
+    </Text>
+    :
     <TouchableOpacity onPress={() => handlePress(cloth)}>
       <View style={
         [Platform.OS === "android" || Platform.OS === "ios" ? styles.phoneCardContainer : styles.webCardContainer,
@@ -47,6 +54,7 @@ export const CustomCard = ({ cloth }: cardPropsType) => {
         </View>
       </View>
     </TouchableOpacity>
+
   )
 }
 
@@ -60,6 +68,8 @@ const styles = StyleSheet.create({
     minHeight: 300,
     borderColor: "gray",
     borderWidth: 1,
+    elevation:1,
+    backgroundColor: "#fff"
   },
 
   webCardContainer: {
@@ -80,8 +90,10 @@ const styles = StyleSheet.create({
     height:150,
     width:"100%",
     resizeMode: "cover",
-    borderBottomColor: "red",
+    borderBottomColor: "cyan",
     borderBottomWidth: 2,
+    borderTopRightRadius:10,
+    borderTopLeftRadius:10,
   },
 
   cardBottomContainer: {
