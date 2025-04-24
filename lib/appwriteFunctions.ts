@@ -108,12 +108,12 @@ export const listAllActiveClothes = async () => {
 export const listenForChanges = (callback: (newCloth: cloth) => void) => {
   console.log("listenForChanges function called")
   client.subscribe(`databases.${config.databaseID}.collections.${config.productCollectionID}.documents`, response => {
-    console.log(response)
+    console.log(response, "this is the response")
     const eventType = response.events[0]
     console.log(eventType + " event type")
     if (eventType.includes("create")) {
       console.log(`${response.payload} new payload added \n`)
-      let imageUri = storage.getFilePreview(config.clothesBucketID, config.payload.$id)
+      // let imageUri = generateClothImageLink(response.payload.imageID)
       // Log when a new file is uploaded
       let newCloth: cloth = {
         documentID: response.payload.$id,
