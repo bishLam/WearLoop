@@ -56,6 +56,7 @@ const flatListHeader = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <FlatList 
+      style = {styles.flatList}
       data={chatListData}
       renderItem= {({ item }) => 
         <ChatListItem 
@@ -77,6 +78,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: 20,
+    marginBottom:20
+    // paddingHorizontal: "5%"
   },
 
   leftHeaderContainer: {
@@ -100,4 +103,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingRight: 34
   },
+
+  flatList: {
+    paddingHorizontal: "5%"
+  }
 })

@@ -25,7 +25,7 @@ export const database = getFirestore(app)
 
 export const generateChatId = (user1: string, user2: string) => {
   var result = [user1, user2].sort().join("_")
-  console.log(result)
+  // console.log(result)
   return result
 }
 
