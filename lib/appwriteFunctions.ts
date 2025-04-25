@@ -238,4 +238,30 @@ export const listAllClothesByUser = async(uploaderID: string) => {
   }
 }
 
+export const listAllUsers = async () => {
+  let response = await database.listDocuments(config.databaseID, config.usersCollectionID)
+  let documents = response.documents;
+  let users: userType[] = []
+
+  try {
+    for (const document of documents) {
+      let dataRow = await database.getDocument(config.databaseID, config.usersCollectionID, document.$id);
+      let singleUser: userType = {
+        email: dataRow.email,
+        firstName: dataRow.firstName,
+        lastName: dataRow.lastName,
+        profilePictureID: dataRow.pictureID,
+        userID: dataRow.$id
+      }
+
+      users.push(singleUser)
+    }
+    // console.log(clothDetails.length)
+    return users
+  }
+  catch (error) {
+    console.log(error + "here")
+  }
+};
+
 

@@ -12,7 +12,7 @@ const ClothDetail = () => {
 
   const { cloth } = useLocalSearchParams();
   const clothObject: cloth = cloth ? JSON.parse(cloth as string) : null;
-  console.log(clothObject)
+  // console.log(clothObject)
 
   const handleChatButtonPress= (clothID:string) => {
     router.push("/(tabs)/messenger")

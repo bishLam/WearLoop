@@ -51,6 +51,13 @@ const HomeLayout = () => {
           }}
         />
 
+        <Tabs.Screen
+          name='individualChat'
+          options={{
+            href: null
+          }}
+        />
+
 
 
       </Tabs>

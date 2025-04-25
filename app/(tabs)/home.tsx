@@ -107,14 +107,14 @@ const Home = () => {
   }, [])
 
   //listen for changes in the appwrite document for realtime support
-  useEffect(() => {
-    const unsubscribe = () => listenForChanges((newCloth) => {
-      console.log("New cloth added: \n", newCloth);
-      setAllClothes(prevCloths => [...prevCloths, newCloth])
-    });
+  // useEffect(() => {
+  //   const unsubscribe = () => listenForChanges((newCloth) => {
+  //     console.log("New cloth added: \n", newCloth);
+  //     setAllClothes(prevCloths => [...prevCloths, newCloth])
+  //   });
 
-    return () => unsubscribe()
-  }, [`databases.${config.databaseID}.collections.${config.productCollectionID}.documents`])
+  //   return () => unsubscribe()
+  // }, [`databases.${config.databaseID}.collections.${config.productCollectionID}.documents`])
 
 
   return (
