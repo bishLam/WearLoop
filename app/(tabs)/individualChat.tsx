@@ -82,26 +82,36 @@ const IndividualChat = () => {
         </View>
         <View style={styles.headerRightView}>
 
-        <MaterialIcons name="call" size={24} color="black" />
-        <Entypo name="dots-three-vertical" size={24} color="black" />
+          <MaterialIcons name="call" size={24} color="black" />
+          <Entypo name="dots-three-vertical" size={24} color="black" />
         </View>
 
       </View>
       <View style={styles.messageView}>
-        <FlatList
-          contentContainerStyle={[
-            styles.flatlistContainerStyle
-          ]
-          }
-          style={styles.flatList}
-          data={messages}
-          scrollEnabled
-          renderItem={({ item }) =>
-            <Text style={[item.senderID === receiverUser.email ? styles.senderText : styles.receiverText]}>
-              {item.messageText}
-            </Text>
-          }
-        />
+        {
+          messages!.length > 0 ?
+            <FlatList
+              contentContainerStyle={[
+                styles.flatlistContainerStyle
+              ]
+              }
+              style={styles.flatList}
+              data={messages}
+              scrollEnabled
+              renderItem={({ item }) =>
+                <Text style={[item.senderID === receiverUser.email ? styles.senderText : styles.receiverText]}>
+                  {item.messageText}
+                </Text>
+              }
+            />
+
+            :
+
+            <TouchableOpacity>
+              <Text>Wave to say hello</Text>
+              </TouchableOpacity>
+        }
+
       </View>
       <View style={styles.sendtextView}>
         <TextInput
@@ -137,43 +147,43 @@ const styles = StyleSheet.create({
     paddingHorizontal: "5%",
     paddingVertical: "2%",
     backgroundColor: "white",
-    width:"100%",
-    zIndex:1
+    width: "100%",
+    zIndex: 1
   },
 
   headerLeftView: {
-    display:"flex",
-    flexDirection:"row",
+    display: "flex",
+    flexDirection: "row",
     alignItems: "center",
     gap: 20
   },
-  headerRightView :{
+  headerRightView: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    gap:20
+    gap: 20
   },
   userImage: {
     borderRadius: 50,
     borderColor: "gray",
-    borderWidth:0.5,
+    borderWidth: 0.5,
     height: 40,
     width: 40
   },
 
   messageView: {
     flex: 1,
-    marginBottom: 160,
+    marginBottom: 70,
     backgroundColor: "#f5f5f5"
   },
 
   flatList: {
     flex: 1,
-    zIndex:0
+    zIndex: 0
   },
 
   flatlistContainerStyle: {
     display: "flex",
-    flex: 1,
+    // flex: 1, 
     flexDirection: "column",
     justifyContent: "flex-end",
     gap: 20,
@@ -185,32 +195,33 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderTopRightRadius:20,
-    borderTopLeftRadius:20,
-    borderBottomRightRadius:20,
-    color:"black",
-    fontSize:16,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    color: "black",
+    fontSize: 16,
   },
 
   receiverText: {
     marginLeft: "auto",
     marginRight: "5%",
     backgroundColor: "blue",
-    color:"white",
-    fontSize:16,
+    color: "white",
+    fontSize: 16,
     paddingVertical: 15,
     paddingHorizontal: 20,
-    borderTopRightRadius:20,
-    borderBottomLeftRadius:20,
-    borderTopLeftRadius:20
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    borderTopLeftRadius: 20
   },
 
   sendtextView: {
     position: "absolute",
     bottom: 0,
     width: "100%",
-    marginBottom: 20,
-    
+    marginTop: 0,
+    marginBottom: 20
+
   },
 
   textInput: {
@@ -222,7 +233,7 @@ const styles = StyleSheet.create({
     marginHorizontal: "5%",
     paddingVertical: 10,
     paddingHorizontal: 10,
-    paddingEnd:100
+    paddingEnd: 100
   },
 
   sendBotton: {
