@@ -15,7 +15,12 @@ const ClothDetail = () => {
   // console.log(clothObject)
 
   const handleChatButtonPress= (clothID:string) => {
-    router.push("/(tabs)/messenger")
+    router.push({
+      pathname: "/(tabs)/individualChat",
+      params : {
+        user: JSON.stringify(uploaderUser)
+      }
+    })
   }
 
   const [uploaderUser, setUploaderUser] = useState<userType>({
