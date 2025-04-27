@@ -1,39 +1,32 @@
-import { TouchableOpacity, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { Platform, Image } from 'react-native'
-import { Colors } from '@/constants/Colors'
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { cloth, generateClothImageLink } from '@/lib/appwriteFunctions'
-import {router } from 'expo-router'
-
+import { TouchableOpacity, StyleSheet, Text, View, Image, Platform } from 'react-native';
+import React from 'react';
+import { Colors } from '@/constants/Colors';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { cloth, generateClothImageLink } from '@/lib/appwriteFunctions';
+import { router } from 'expo-router';
 
 type cardPropsType = {
-  cloth: cloth
-}
-const handlePress = (cloth:cloth) => {
-  // console.log(cloth)
+  cloth: cloth;
+};
+
+const handlePress = (cloth: cloth) => {
   router.push({
     pathname: "/clothDetails",
-    
     params: {
-      cloth: JSON.stringify(cloth)
-    }
-  })
-}
+      cloth: JSON.stringify(cloth),
+    },
+  });
+};
 
 export const CustomCard = ({ cloth }: cardPropsType) => {
-  return (
-    cloth.clothUri == "" ?
-    <Text>
-      You do not have any clothes to view here
-    </Text>
-    :
-    <TouchableOpacity onPress={() => handlePress(cloth)}>
-      <View style={
-        [Platform.OS === "android" || Platform.OS === "ios" ? styles.phoneCardContainer : styles.webCardContainer,
-        ]}>
+  return cloth.clothUri == "" ? (
+    <Text>You do not have any clothes to view here</Text>
+  ) : (
+    <TouchableOpacity onPress={() => handlePress(cloth)} style={styles.touchable}>
+      <View style={styles.cardContainer}>
         <View style={styles.cardImageContainer}>
-          <Image source={{ uri: generateClothImageLink(cloth.documentID) }}
+          <Image
+            source={{ uri: generateClothImageLink(cloth.documentID) }}
             style={styles.image}
             onError={(e) => console.log("Image error:", e.nativeEvent.error)}
           />
@@ -54,72 +47,58 @@ export const CustomCard = ({ cloth }: cardPropsType) => {
         </View>
       </View>
     </TouchableOpacity>
+  );
+};
 
-  )
-}
-
-export default CustomCard
+export default CustomCard;
 
 const styles = StyleSheet.create({
-  phoneCardContainer: {
-    width: 200,
+  touchable: {
+    flex: 1, // Important: take full space of parent View
+  },
+  cardContainer: {
+    flex: 1, // Important: make card fill the given width
     borderRadius: 10,
-    marginBottom: 20,
     minHeight: 300,
     borderColor: "gray",
     borderWidth: 1,
-    elevation:1,
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
+    overflow: 'hidden',
+    elevation: Platform.OS === "android" ? 1 : 0,
   },
-
-  webCardContainer: {
-    width: 360,
-    borderRadius: 10,
-    marginBottom: 20,
-    height: 300,
-    borderColor: "gray",
-    borderWidth: 1,
-  },
-
   cardImageContainer: {
-    maxWidth: "100%",
+    width: "100%",
   },
-
   image: {
-    flex: 1,
-    height:150,
-    width:"100%",
+    width: "100%",
+    height: 150,
     resizeMode: "cover",
+    borderTopRightRadius: 10,
+    borderTopLeftRadius: 10,
     borderBottomColor: "cyan",
     borderBottomWidth: 2,
-    borderTopRightRadius:10,
-    borderTopLeftRadius:10,
   },
-
   cardBottomContainer: {
     flex: 1,
     flexDirection: "column",
-    gap:20,
-    paddingVertical:5,
-    paddingHorizontal:10,
+    gap: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
   },
-
   titleText: {
     fontSize: 20,
-    color: "black"
+    color: "black",
   },
-  descriptionText:{
-    fontStyle:"italic",
-    fontWeight:"400"
+  descriptionText: {
+    fontStyle: "italic",
+    fontWeight: "400",
   },
-
   footerContainer: {
-    flex:1,
-    flexDirection:"row",
-    justifyContent:"space-between",
-    bottom:0
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 'auto',
   },
   locationContainer: {
-    gap:10
-  }
-})
+    gap: 10,
+  },
+});
