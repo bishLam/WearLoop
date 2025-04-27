@@ -7,6 +7,7 @@ import { Link } from "expo-router"
 import CustomInput from '@/components/CustomInput';
 
 import { useUser } from '@/contexts/UserAuth';
+import LoadingScreen from '../loadingScreen';
 
 const Login = () => {
   const authContext = useUser();
@@ -129,7 +130,7 @@ const Login = () => {
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{  }}>
           {isLoading ?
-            <Text>Signing you up...</Text> :
+            <LoadingScreen /> :
             <View style={styles.mainContainer}>
               <Image source={logo} style={styles.logo} />
               <Text style={styles.welcomeText}>Welcome to Wearloop</Text>
