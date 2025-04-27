@@ -1,7 +1,8 @@
 import {
-  StyleSheet, Text, Image, TextInput,
+  StyleSheet, Text, TextInput,
   View, TouchableOpacity
 } from 'react-native'
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { FlatList } from 'react-native';
 import ProfileSlider from '@/components/ProfileSlider';
@@ -13,12 +14,10 @@ import React from 'react';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { defaultImage } from '@/constants/defaultImage';
 import { cloth } from '@/lib/appwriteFunctions'
-
-//testing
-import { config } from '@/lib/appwrite';
 import { listAllActiveClothes, listenForChanges, getUserDetailsFromEmail, generateProfilePictureLink } from '@/lib/appwriteFunctions';
 import { CustomCard } from "../../components/CustomCard"
 import LoadingScreen from '../loadingScreen';
+import { blurhash } from '@/constants/blurhash';
 
 
 
@@ -39,12 +38,15 @@ const Home = () => {
                 <Image
                   source={require('../../assets/icons/logo.png')}
                   style={styles.logo}
+                  contentFit='cover'
+                  placeholder={{blurhash}}
                 />
                 <Text style={styles.welcomeText}>Welcome back</Text>
               </View>
               <TouchableOpacity onPress={() => setShowProfileModal(true)}>
                 <Image
-                  source={{ uri: userImage }}
+                  source= {userImage}
+                  placeholder={{blurhash}}
                   style={styles.profile}
                 />
               </TouchableOpacity>
@@ -192,7 +194,6 @@ const styles = StyleSheet.create({
   profile: {
     width: 40,
     height: 40,
-    resizeMode: 'cover',
     borderRadius: 50
   },
   searchContainer: {

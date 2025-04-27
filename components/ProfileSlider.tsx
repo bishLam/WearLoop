@@ -9,10 +9,10 @@ import {
   Animated,
   Dimensions,
   Pressable,
-  Image
 } from 'react-native';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
-
+import { blurhash } from '@/constants/blurhash';
 import { useUser } from '@/contexts/UserAuth';
 import Feather from '@expo/vector-icons/Feather';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -104,7 +104,11 @@ const ProfileSlider = ({ visible, onClose, onLogout }: Props) => {
 
           {/* Logout Button */}
           <View style={styles.imageContainer}>
-            <Image style={styles.image} source={{ uri: userImage }}/>
+            <Image style={styles.image} 
+            source={userImage }
+            contentFit='cover'
+            placeholder={{blurhash}}
+            />
           </View>
           <TouchableOpacity style={[styles.otherButtons, { backgroundColor: "transparent" }]} onPress={() => handleSliderButtonPress("home")}>
           <Feather name="home" size={24} color="black" />

@@ -4,6 +4,7 @@ import {Image} from 'expo-image'
 import { Colors } from '@/constants/Colors'
 import { router } from 'expo-router'
 import { generateProfilePictureLink, userType } from '@/lib/appwriteFunctions'
+import { blurhash } from '@/constants/blurhash'
 
 type propType = {
   chatData: userType
@@ -22,14 +23,14 @@ const ChatListItem = ({chatData} : propType) => {
     onPress={() => handleChatPress(chatData)}
     >
       <Image 
-      
+      placeholder={{blurhash}}
       style= {styles.userImage}
       source = {generateProfilePictureLink(chatData.profilePictureID)}
       contentFit= "cover"
       />
       <View style = {styles.nameMessageContainer}>
         <Text style = {styles.text}>{`${chatData.firstName} ${chatData.lastName}`}</Text>
-        <Text style = {styles.text}>{`${"nothing yet"}`}</Text>
+        <Text style = {styles.text}>{`${"Last Message"}`}</Text>
         
       </View>
     </Pressable>

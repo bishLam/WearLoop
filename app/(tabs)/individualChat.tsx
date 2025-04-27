@@ -12,6 +12,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { Image } from 'expo-image';
 import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Colors } from '@/constants/Colors';
 
 const IndividualChat = () => {
   const userAuth = useUser()
@@ -49,7 +50,6 @@ const IndividualChat = () => {
     if (typedMessage.trim() === "") return
 
     const chatID = generateChatId(userAuth?.current?.email!, receiverUser.email)
-    // console.log(chatID + " mesage id")
     let myuuid = uuid.v4()
     const chatRef = doc(database, "chatList", `${chatID}`, "messages", `${myuuid}`)
     await setDoc(chatRef, {
@@ -58,8 +58,11 @@ const IndividualChat = () => {
       senderID: userAuth?.current?.email
     })
     setTypedMessage("")
+  }
 
-
+  const sendInitialMessage = () => {
+    setTypedMessage("Hello!")
+    sendMessageToDatabase()
   }
   return (
     <SafeAreaView style={styles.container}>
@@ -89,6 +92,7 @@ const IndividualChat = () => {
       </View>
       <View style={styles.messageView}>
         {
+          messages ?
           messages!.length > 0 ?
             <FlatList
               contentContainerStyle={[
@@ -107,9 +111,17 @@ const IndividualChat = () => {
 
             :
 
-            <TouchableOpacity>
-              <Text>Wave to say hello</Text>
-              </TouchableOpacity>
+            <TouchableOpacity style = {[styles.noMessagesButton, {backgroundColor: Colors.light.cyan}]} 
+            onPress={
+              sendInitialMessage
+            }
+            >
+              <Text style = {[styles.noMessagesButtonText]}>Click to say hello</Text>
+            </TouchableOpacity>
+
+              :
+              <>
+              </>
         }
 
       </View>
@@ -123,7 +135,7 @@ const IndividualChat = () => {
           placeholder='Enter a new message'
         />
         <Pressable style={styles.sendBotton} onPress={sendMessageToDatabase}>
-          <Feather name="send" size={35} color="blue" />
+          <Feather name="send" size={30} color="blue" />
         </Pressable>
       </View>
     </SafeAreaView>
@@ -243,5 +255,24 @@ const styles = StyleSheet.create({
     marginHorizontal: "6%",
     paddingVertical: 5,
     borderRadius: 20,
+  },
+
+  noMessagesButton: {
+    bottom:0,
+    backgroundColor: "lime",
+    marginTop: "auto",
+    marginBottom: 50,
+    paddingHorizontal: 20,
+    borderRadius: 15,
+    paddingVertical: 20,
+    width: 200,
+    alignSelf : "center"
+
+  },
+
+  noMessagesButtonText: {
+    textAlign: "center",
+    fontSize: 20
+
   }
 })
