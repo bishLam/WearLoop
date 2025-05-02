@@ -2,7 +2,7 @@ import { defaultClothImage, defaultImage } from '@/constants/defaultImage'
 import { cloth, generateClothImageLink, generateProfilePictureLink, getUserDetailsFromEmail, userType } from '@/lib/appwriteFunctions'
 import AntDesign from '@expo/vector-icons/AntDesign'
 import { router, useLocalSearchParams } from 'expo-router'
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import LoadingScreen from '../loadingScreen'
@@ -14,13 +14,41 @@ const ClothDetail = () => {
   const clothObject: cloth = cloth ? JSON.parse(cloth as string) : null;
   // console.log(clothObject)
 
-  const handleChatButtonPress= (clothID:string) => {
+  const handleChatButtonPress = (clothID: string) => {
     router.push({
       pathname: "/(tabs)/individualChat",
-      params : {
+      params: {
         user: JSON.stringify(uploaderUser)
       }
     })
+  }
+
+  const formatDate = (dateToBeFormatted: string) => {
+    var formattedDate = "";
+
+    var date = new Date(dateToBeFormatted)
+    const day = date.getUTCDate()
+    var prefix = ""
+    switch (day) {
+      case 1: 
+      prefix = "st"
+      return 
+
+      case 2:
+      prefix = "nd"
+      return
+
+      case 3: 
+      prefix = "rd"
+
+      default: 
+      prefix = "th"
+    }
+    const month = date.toLocaleString('default', {month: "short"})
+    const year = date.toLocaleString('default', {year: "numeric"})
+
+    formattedDate = `${day}${prefix} ${month} ${year}`
+    return formattedDate;
   }
 
   const [uploaderUser, setUploaderUser] = useState<userType>({
@@ -32,104 +60,102 @@ const ClothDetail = () => {
   })
 
   useEffect(() => {
-    const getUserDetails = async() => {
-      try{
+    const getUserDetails = async () => {
+      try {
         setIsLoading(true)
-      let user = await getUserDetailsFromEmail(clothObject.uploaderID)
-      console.log(clothObject.uploaderID)
-      if (user){
-        console.log(user)
-        setUploaderUser(user!)
-      }
-      else{
+        let user = await getUserDetailsFromEmail(clothObject.uploaderID)
+        if (user) {
+          setUploaderUser(user!)
+        }
+        else {
 
+        }
       }
+      catch (error) {
+        console.log(error)
+      }
+      finally {
+        setIsLoading(false)
+      }
+
     }
-    catch(error){
-      console.log(error)
-    }
-    finally{
-      setIsLoading(false)
-    }
-      
-  } 
-  getUserDetails()
-}, [clothObject.uploaderID])
-  
+    getUserDetails()
+  }, [clothObject.uploaderID])
+
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {
         isLoading ?
-        <LoadingScreen />
-        :
-              <ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical: "2%", flex: 1 }}>
-        <View style={styles.mainContainer}>
-          <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton}
-              onPress={() => router.back()}
-            >
-              {/* <Text style={styles.backButtonText}> {`<`} </Text> */}
-              <AntDesign name="arrowleft" size={34} color="black" />
-            </TouchableOpacity>
-            <Text style={styles.headerText}>{clothObject.clothTitle}</Text>
-          </View>
-
-          <View style={styles.contentView}>
-            <View style={styles.imageContainer}>
-              <Image
-                source={{ uri:  generateClothImageLink(clothObject.documentID) }}
-                height={150}
-                width={150}
-                resizeMode='cover'
-                style={styles.image}
-              />
-            </View>
-            <View style={styles.detailsContainer}>
-              <Text style={{ textDecorationLine: "underline", fontWeight: "600", fontSize: 18 }}>Details</Text>
-              <View style={styles.userProfileContainer}>
-                <Image
-                  source={{ uri: generateProfilePictureLink(uploaderUser.profilePictureID) }}
-                  height={40}
-                  width={40}
-                  style={styles.profileImage}
-                />
-                <Text>{uploaderUser.firstName + " " + uploaderUser.lastName}</Text>
-                <Text style={{ flexGrow: 2, textAlign: "right" }}>{clothObject.createdDate}</Text>
-
+          <LoadingScreen />
+          :
+          <ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical: "2%", flex: 1 }}>
+            <View style={styles.mainContainer}>
+              <View style={styles.header}>
+                <TouchableOpacity style={styles.backButton}
+                  onPress={() => router.back()}
+                >
+                  {/* <Text style={styles.backButtonText}> {`<`} </Text> */}
+                  <AntDesign name="arrowleft" size={34} color="black" />
+                </TouchableOpacity>
+                <Text style={styles.headerText}>{clothObject.clothTitle}</Text>
               </View>
-              <View style={styles.otherDetailsSection}>
-                <View style={styles.individualDetailView}>
-                  <Text style={styles.detailTileText}>Description:</Text>
-                  <Text style={styles.detailText}>{clothObject.description}</Text>
+
+              <View style={styles.contentView}>
+                <View style={styles.imageContainer}>
+                  <Image
+                    source={{ uri: generateClothImageLink(clothObject.documentID) }}
+                    height={150}
+                    width={150}
+                    resizeMode='cover'
+                    style={styles.image}
+                  />
                 </View>
-                <View style={styles.individualDetailView}>
-                  <Text style={styles.detailTileText}>Condition:</Text>
-                  <Text style={styles.detailText}>{clothObject.condition}</Text>
+                <View style={styles.detailsContainer}>
+                  <Text style={{ textDecorationLine: "underline", fontWeight: "600", fontSize: 18 }}>Details</Text>
+                  <View style={styles.userProfileContainer}>
+                    <Image
+                      source={{ uri: generateProfilePictureLink(uploaderUser.profilePictureID) }}
+                      height={40}
+                      width={40}
+                      style={styles.profileImage}
+                    />
+                    <Text>{uploaderUser.firstName + " " + uploaderUser.lastName}</Text>
+                    <Text style={{ flexGrow: 2, textAlign: "right" }}>{formatDate(clothObject.createdDate)}</Text>
+
+                  </View>
+                  <View style={styles.otherDetailsSection}>
+                    <View style={styles.individualDetailView}>
+                      <Text style={styles.detailTileText}>Description:</Text>
+                      <Text style={styles.detailText}>{clothObject.description}</Text>
+                    </View>
+                    <View style={styles.individualDetailView}>
+                      <Text style={styles.detailTileText}>Condition:</Text>
+                      <Text style={styles.detailText}>{clothObject.condition}</Text>
+                    </View>
+                    <View style={styles.individualDetailView}>
+                      <Text style={styles.detailTileText}>Category:</Text>
+                      <Text style={styles.detailText}>{clothObject.category}</Text>
+                    </View>
+                    <View style={styles.individualDetailView}>
+                      <Text style={styles.detailTileText}>Gender:</Text>
+                      <Text style={styles.detailText}>{clothObject.gender}</Text>
+                    </View>
+                    <View style={styles.individualDetailView}>
+                      <Text style={styles.detailTileText}>Postal Code:</Text>
+                      <Text style={styles.detailText}>{clothObject.postalCode}</Text>
+                    </View>
+                  </View>
                 </View>
-                <View style={styles.individualDetailView}>
-                  <Text style={styles.detailTileText}>Category:</Text>
-                  <Text style={styles.detailText}>{clothObject.category}</Text>
-                </View>
-                <View style={styles.individualDetailView}>
-                  <Text style={styles.detailTileText}>Gender:</Text>
-                  <Text style={styles.detailText}>{clothObject.gender}</Text>
-                </View>
-                <View style={styles.individualDetailView}>
-                  <Text style={styles.detailTileText}>Postal Code:</Text>
-                  <Text style={styles.detailText}>{clothObject.postalCode}</Text>
-                </View>
+                <TouchableOpacity
+                  style={styles.chatButton}
+                  onPress={() => handleChatButtonPress(clothObject.documentID)}
+                >
+                  <Text style={styles.buttonText}>Chat with uploader</Text>
+                </TouchableOpacity>
               </View>
             </View>
-            <TouchableOpacity
-              style={styles.chatButton}
-              onPress={() => handleChatButtonPress(clothObject.documentID)}
-            >
-              <Text style={styles.buttonText}>Chat with uploader</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
+          </ScrollView>
       }
 
     </SafeAreaView>
@@ -241,15 +267,15 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 10,
     paddingVertical: 10,
-    marginTop:10,
-    shadowColor:"lime",
+    marginTop: 10,
+    shadowColor: "lime",
     shadowOffset: {
       height: 10,
       width: 20
     },
-    shadowOpacity:0.58,
-    shadowRadius:16,
-    elevation:80
+    shadowOpacity: 0.58,
+    shadowRadius: 16,
+    elevation: 80
   },
 
   buttonText: {
