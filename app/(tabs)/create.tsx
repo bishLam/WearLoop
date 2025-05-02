@@ -185,12 +185,12 @@ const Create = () => {
               {/* button to go back to the previous page */}
               {Platform.OS === "android" || Platform.OS === "ios" ?
                 <>
-                  <TouchableOpacity style={styles.backButton}
+                  {/* <TouchableOpacity style={styles.backButton}
                     onPress={() => router.replace("/home")}
                   >
-                    {/* <Text style={styles.backButtonText}> {`<`} </Text> */}
+                  
                     <AntDesign name="arrowleft" size={34} color="black" />
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                   <Text style={styles.headerText}>Upload a cloth</Text>
                 </> :
                 <input type="file"
@@ -380,7 +380,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     flex: 1,
     textAlign: "center",
-    paddingRight: 34
   },
 
   image: {

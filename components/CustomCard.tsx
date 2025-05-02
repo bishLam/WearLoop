@@ -55,6 +55,8 @@ export default CustomCard;
 const styles = StyleSheet.create({
   touchable: {
     flex: 1, // Important: take full space of parent View
+    paddingVertical: 10,
+    paddingHorizontal:10
   },
   cardContainer: {
     flex: 1, // Important: make card fill the given width
