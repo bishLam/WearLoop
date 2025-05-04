@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, SafeAreaView, Pressable, FlatList } from 'react-native'
+import { StyleSheet, Text, View, TextInput, SafeAreaView, Pressable, FlatList, KeyboardAvoidingView, Platform } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router'
 import Feather from '@expo/vector-icons/Feather';
@@ -13,6 +13,7 @@ import { Image } from 'expo-image';
 import Entypo from '@expo/vector-icons/Entypo';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Colors } from '@/constants/Colors';
+import { blurhash } from '@/constants/blurhash';
 
 const IndividualChat = () => {
   const userAuth = useUser()
@@ -65,80 +66,100 @@ const IndividualChat = () => {
     sendMessageToDatabase()
   }
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.headerView}>
-        <View style={styles.headerLeftView}>
-          <TouchableOpacity style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <AntDesign name="arrowleft" size={34} color="black" />
-          </TouchableOpacity>
-          <Image
-            style={styles.userImage}
-            source={generateProfilePictureLink(receiverUser.profilePictureID)}
-            contentFit="cover"
-          />
-          <View>
-            <Text>{`${receiverUser.firstName} ${receiverUser.lastName}`}</Text>
-            <Text>{`Active Now`}</Text>
-          </View>
-        </View>
-        <View style={styles.headerRightView}>
-
-          <MaterialIcons name="call" size={24} color="black" />
-          <Entypo name="dots-three-vertical" size={24} color="black" />
-        </View>
-
-      </View>
-      <View style={styles.messageView}>
-        {
-          messages ?
-          messages!.length > 0 ?
-            <FlatList
-              contentContainerStyle={[
-                styles.flatlistContainerStyle
-              ]
-              }
-              style={styles.flatList}
-              data={messages}
-              scrollEnabled
-              renderItem={({ item }) =>
-                <Text style={[item.senderID === receiverUser.email ? styles.senderText : styles.receiverText]}>
-                  {item.messageText}
-                </Text>
-              }
-            />
-
-            :
-
-            <TouchableOpacity style = {[styles.noMessagesButton, {backgroundColor: Colors.light.cyan}]} 
-            onPress={
-              sendInitialMessage
-            }
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.headerView}>
+          <View style={styles.headerLeftView}>
+            <TouchableOpacity
+              onPress={() => router.back()}
             >
-              <Text style = {[styles.noMessagesButtonText]}>Click to say hello</Text>
+              <AntDesign name="arrowleft" size={34} color="black" />
             </TouchableOpacity>
+            <Image
+              style={styles.userImage}
+              source={generateProfilePictureLink(receiverUser.profilePictureID)}
+              contentFit="cover"
+            />
+            <View>
+              <Text>{`${receiverUser.firstName} ${receiverUser.lastName}`}</Text>
+              <Text>{`Active Now`}</Text>
+            </View>
+          </View>
+          <View style={styles.headerRightView}>
+
+            <MaterialIcons name="call" size={24} color="black" />
+            <Entypo name="dots-three-vertical" size={24} color="black" />
+          </View>
+
+        </View>
+        <View style={styles.messageView}>
+          {
+            messages ?
+              messages!.length > 0 ?
+                <FlatList
+                  contentContainerStyle={[
+                    styles.flatlistContainerStyle
+                  ]
+                  }
+                  style={styles.flatList}
+                  data={messages}
+                  scrollEnabled
+                  scrollsToTop={false}
+                  renderItem={({ item }) =>
+                    item.senderID === receiverUser.email ?
+                      <View style={styles.senderTextContainer}>
+                        <Image
+                          source={generateProfilePictureLink(receiverUser.profilePictureID)}
+                          style={styles.senderImage}
+                          placeholder={blurhash}
+                        />
+                        <Text style={styles.senderText} >
+                          {item.messageText}
+                        </Text>
+                      </View>
+                      :
+                      <Text style={styles.receiverText} >
+                        {item.messageText}
+                      </Text>
+                    // <Text style={[item.senderID === receiverUser.email ? styles.senderText : styles.receiverText]}>
+                    //   {item.messageText}
+                    // </Text>
+                  }
+                />
+
+                :
+
+                <TouchableOpacity style={[styles.noMessagesButton, { backgroundColor: Colors.light.cyan }]}
+                  onPress={
+                    sendInitialMessage
+                  }
+                >
+                  <Text style={[styles.noMessagesButtonText]}>Click to say hello</Text>
+                </TouchableOpacity>
 
               :
               <>
               </>
-        }
+          }
 
-      </View>
-      <View style={styles.sendtextView}>
-        <TextInput
-          autoCorrect
-          multiline
-          value={typedMessage}
-          onChangeText={(val) => setTypedMessage(val)}
-          style={styles.textInput}
-          placeholder='Enter a new message'
-        />
-        <Pressable style={styles.sendBotton} onPress={sendMessageToDatabase}>
-          <Feather name="send" size={30} color="blue" />
-        </Pressable>
-      </View>
-    </SafeAreaView>
+        </View>
+        <View style={styles.sendtextView}>
+          <TextInput
+            autoCorrect
+            multiline
+            value={typedMessage}
+            onChangeText={(val) => setTypedMessage(val)}
+            style={styles.textInput}
+            placeholder='Enter a new message'
+          />
+          <TouchableOpacity style={styles.sendBotton} onPress={sendMessageToDatabase}>
+            <Feather name="send" size={30} color="white" />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   )
 }
 
@@ -150,6 +171,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5"
+
   },
 
   headerView: {
@@ -190,23 +212,38 @@ const styles = StyleSheet.create({
 
   flatList: {
     flex: 1,
-    zIndex: 0
+    zIndex: 0,
+    paddingVertical: "3%",
+    paddingHorizontal: "2%",
   },
 
   flatlistContainerStyle: {
     display: "flex",
-    // flex: 1, 
     flexDirection: "column",
     justifyContent: "flex-end",
     gap: 20,
+    paddingBottom: 30
+  },
+
+  senderTextContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "flex-end",
+    gap: 10
+  },
+
+  senderImage: {
+    height: 30,
+    width: 30,
+    borderRadius: 50,
+
   },
 
   senderText: {
-    marginRight: "auto",
-    marginLeft: "5%",
     backgroundColor: "white",
     paddingVertical: 10,
     paddingHorizontal: 20,
+    maxWidth: "80%",
     borderTopRightRadius: 20,
     borderTopLeftRadius: 20,
     borderBottomRightRadius: 20,
@@ -216,10 +253,10 @@ const styles = StyleSheet.create({
 
   receiverText: {
     marginLeft: "auto",
-    marginRight: "5%",
     backgroundColor: "blue",
     color: "white",
     fontSize: 16,
+    maxWidth: "80%",
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderTopRightRadius: 20,
@@ -245,20 +282,23 @@ const styles = StyleSheet.create({
     marginHorizontal: "5%",
     paddingVertical: 10,
     paddingHorizontal: 10,
-    paddingEnd: 100
+    paddingEnd: 60
   },
 
   sendBotton: {
     right: 0,
     marginLeft: "auto",
     position: "absolute",
-    marginHorizontal: "6%",
-    paddingVertical: 5,
-    borderRadius: 20,
+    marginHorizontal: "5.3%",
+    paddingHorizontal: 20,
+    paddingVertical: 2,
+    marginTop: 2,
+    backgroundColor: "blue",
+    borderRadius: 10
   },
 
   noMessagesButton: {
-    bottom:0,
+    bottom: 0,
     backgroundColor: "lime",
     marginTop: "auto",
     marginBottom: 50,
@@ -266,7 +306,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingVertical: 20,
     width: 200,
-    alignSelf : "center"
+    alignSelf: "center"
 
   },
 

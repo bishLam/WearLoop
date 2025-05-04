@@ -7,7 +7,7 @@ import { router } from 'expo-router'
 import { listAllUsers, generateProfilePictureLink, userType } from '@/lib/appwriteFunctions'
 import ChatListItem from '@/components/ChatListItem'
 import { database, generateChatId, messageType } from '@/lib/firebase'
-import { collection, query, orderBy, onSnapshot, doc, getDoc } from 'firebase/firestore'
+import { collection, query, orderBy, onSnapshot, doc, getDoc, limit, getDocs } from 'firebase/firestore'
 import { useUser } from '@/contexts/UserAuth'
 import LoadingScreen from '../loadingScreen'
 
@@ -26,13 +26,38 @@ const getUserEmailFromChatID = (chatID: string, currentUserEmail: string) => {
   }
 }
 
+const getLastMessage = async (roomID: string): Promise<[string, string]> => {
+  var lastMessage = ""
+  const chatID = roomID
+  const collectionRef = collection(database, "chatList", `${chatID}`, "messages")
+  const q = query(collectionRef, orderBy("messageTime", "desc"), limit(1));
 
+  const snapshot = await getDocs(q);
+  if (snapshot == null) return ["", ""]
+  const doc = snapshot.docs[0] //returns the document with lastmessage
+  lastMessage =  doc.data().message
+  var lastMessageUser:string = doc.data().senderID
+
+  return [lastMessage, lastMessageUser]
+}
+
+export type userMessageType = {
+  email: string,
+  firstName: string,
+  lastName: string,
+  profilePictureID: string,
+  userID: string,
+  lastMessage: string,
+  lastMessageUser: string
+}
 
 const Messeges = () => {
   const userAuth = useUser();
 
   //states variables
   const [isLoading, setIsLoading] = useState(true)
+
+  const [users, setAllUsers] = useState<Array<userMessageType>>([])
 
   const [usersFromAppwrite, setusersFromAppwrite] = useState<Array<userType>>([{
     email: '',
@@ -51,10 +76,34 @@ const Messeges = () => {
         if (users?.length == 0) {
           return
         }
-        setusersFromAppwrite(() => users!)
+
+        if (users){
+          if (users!.length > 0) {
+            
+          }
+        }
+        var usersWithMessages: userMessageType[] = []
+        for (const user of users!) {
+          if (user.email != userAuth?.current?.email && user.email != ""){ //exclude currently logged in user and user with ""as email which is the default value of the user
+            let userMessage: userMessageType = {
+              email: user.email,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              profilePictureID: user.profilePictureID,
+              userID: user.userID,
+              lastMessage: (await getLastMessage(generateChatId(userAuth?.current?.email!, user.email)))[0],
+              lastMessageUser: (await getLastMessage(generateChatId(userAuth?.current?.email!, user.email)))[1]
+            }
+            usersWithMessages.push(userMessage)
+            // console.log(userMessage.lastMessage)
+            // setAllUsers((prev) => [...prev, userMessage])
+          }
+        }
+        setAllUsers(usersWithMessages)
+        
       }
       catch (error) {
-        console.log(`${error} error is this`)
+        // console.log(`${error} error is this`)
       }
       finally {
         setIsLoading(false)
@@ -64,50 +113,50 @@ const Messeges = () => {
     allUsers()
   }, [])
 
-  useEffect(
-    () => {
+  // useEffect(
+  //   () => {
 
-      usersFromAppwrite.forEach(userFromAppwrite => {
+  //     usersFromAppwrite.forEach(userFromAppwrite => {
 
-        // console.log("looking for this user " + userFromAppwrite.email)
-        const chatID = generateChatId(userAuth?.current?.email!, userFromAppwrite.email)
-        const collectionRef = collection(database, "chatList", `${chatID}`, "messages")
-        // const q = query(collectionRef, orderBy("messageTime", "asc"));c
+  //       // console.log("looking for this user " + userFromAppwrite.email)
+  //       const chatID = generateChatId(userAuth?.current?.email!, userFromAppwrite.email)
+  //       const collectionRef = collection(database, "chatList", `${chatID}`, "messages")
+  //       // const q = query(collectionRef, orderBy("messageTime", "asc"));c
 
-        const checkUserExists = async () => {
-          //first generate the userchatid coming from appwrite
-          const docRefInFirebase = doc(database, "chatList", `${chatID}`) //document ref to the chatID in firestore
-          const docSnap = await getDoc(docRefInFirebase);
+  //       const checkUserExists = async () => {
+  //         //first generate the userchatid coming from appwrite
+  //         const docRefInFirebase = doc(database, "chatList", `${chatID}`) //document ref to the chatID in firestore
+  //         const docSnap = await getDoc(docRefInFirebase);
 
-          if (docSnap.exists()) {
-            //the user exists, now getting the value from the appwrite
-            let userEmail = getUserEmailFromChatID(chatID, userAuth?.current?.email!)
-          }
-        }
-        checkUserExists()
+  //         if (docSnap.exists()) {
+  //           //the user exists, now getting the value from the appwrite
+  //           let userEmail = getUserEmailFromChatID(chatID, userAuth?.current?.email!)
+  //         }
+  //       }
+  //       checkUserExists()
 
 
 
-        // const unsub = onSnapshot(q, (snapshot) => {
-        //   let allMessagesToDisplay: messageType[] = []
-        //   snapshot.docs.map(doc => {
-        //     let message: messageType = {
-        //       messageText: doc.data().message,
-        //       senderID: doc.data().senderID,
-        //       date: doc.data().messageTime
-        //     }
-        //     allMessagesToDisplay.push(message)
-        //   })
-        //   setMessages(allMessagesToDisplay)
-        // })
-        // return () => {
-        //   unsub()
-        // }
-      })
-    }
-    ,
-    [usersFromAppwrite, userAuth?.current?.email]
-  )
+  //       // const unsub = onSnapshot(q, (snapshot) => {
+  //       //   let allMessagesToDisplay: messageType[] = []
+  //       //   snapshot.docs.map(doc => {
+  //       //     let message: messageType = {
+  //       //       messageText: doc.data().message,
+  //       //       senderID: doc.data().senderID,
+  //       //       date: doc.data().messageTime
+  //       //     }
+  //       //     allMessagesToDisplay.push(message)
+  //       //   })
+  //       //   setMessages(allMessagesToDisplay)
+  //       // })
+  //       // return () => {
+  //       //   unsub()
+  //       // }
+  //     })
+  //   }
+  //   ,
+  //   [usersFromAppwrite, userAuth?.current?.email]
+  // )
 
   const flatListHeader = () => {
     return <View style={styles.headerContainer}>
@@ -133,7 +182,7 @@ const Messeges = () => {
           :
           <FlatList
             style={styles.flatList}
-            data={usersFromAppwrite}
+            data={users}
             renderItem={({ item }) =>
               <ChatListItem
                 chatData={item}

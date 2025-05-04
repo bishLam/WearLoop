@@ -56,7 +56,7 @@ const Login = () => {
     try {
       setIsLoading(true)
       await authContext?.login(form.email, form.password)
-      console.log(authContext?.current?.email)
+      // console.log(authContext?.current?.email)
     }
 
     catch (error) {
@@ -70,19 +70,23 @@ const Login = () => {
 
 
   useEffect(() => {
-    if ( authContext?.current) {
+    setIsLoading(true)
+    if (authContext?.current) {
       console.log("User logged in already. Redirecting them to the home page")
       { router.replace("/home") }
+      
     }
+    setIsLoading(false)
   }, [authContext?.current])
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ }}>
-        {
-          isLoading ? 
+
+      {
+        isLoading ?
           <LoadingScreen />
-            :
+          :
+          <ScrollView contentContainerStyle={{}}>
             <View style={styles.mainContainer}>
               <Image source={logo} style={styles.logo} />
               <Text style={styles.welcomeText}>Welcome back to Wearloop</Text>
@@ -128,10 +132,8 @@ const Login = () => {
                 <Link href="/signup" style={[styles.signUpText, { color: Colors.light.cyan }]}>Sign Up Instead</Link>
               </Text>
             </View>
-
-        }
-
-      </ScrollView>
+          </ScrollView>
+      }
     </SafeAreaView>
   )
 }

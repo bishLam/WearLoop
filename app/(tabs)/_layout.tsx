@@ -10,7 +10,7 @@ const HomeLayout = () => {
   return (
     <>
       <Tabs backBehavior='history' screenOptions={{
-        tabBarStyle: { height: 70, alignContent: "center", borderTopRightRadius: 10, borderTopStartRadius: 10 },
+        tabBarStyle: { height: 90, alignContent: "center", borderTopRightRadius: 10, borderTopStartRadius: 10 },
         headerShown: false,
         tabBarActiveTintColor: Colors.light.cyan,
         tabBarAllowFontScaling: true,

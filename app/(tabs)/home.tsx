@@ -28,49 +28,50 @@ const Home = () => {
   const [allClothes, setAllClothes] = useState<cloth[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [userImage, setUserImage] = useState(defaultImage);
+  const [refreshing, setRefreshing] = useState(false)
   const listHeaderComponent = () => {
 
     return <SafeAreaView style={styles.container}>
-        <View>
-          <View style={styles.mainContainer}>
-            <View style={styles.header}>
-              <View style={styles.leftContainer}>
-                <Image
-                  source={require('../../assets/icons/logo.png')}
-                  style={styles.logo}
-                  contentFit='cover'
-                  placeholder={{blurhash}}
-                />
-                <Text style={styles.welcomeText}>Welcome back</Text>
-              </View>
-              <TouchableOpacity onPress={() => setShowProfileModal(true)}>
-                <Image
-                  source= {userImage}
-                  placeholder={{blurhash}}
-                  style={styles.profile}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.inputcontainer}>
-              <TextInput
-                style={styles.inputtext}
-                placeholder="Search"
+      <View>
+        <View style={styles.mainContainer}>
+          <View style={styles.header}>
+            <View style={styles.leftContainer}>
+              <Image
+                source={require('../../assets/icons/logo.png')}
+                style={styles.logo}
+                contentFit='contain'
+                placeholder={{ blurhash }}
               />
-              <TouchableOpacity
-                style={styles.searchButton}
-                onPress={() => {
-                  // Add search functionality here
-                }}
-              >
-                <FontAwesome5 name="search" size={20} color="#007bff" />
-              </TouchableOpacity>
+              <Text style={styles.welcomeText}>Welcome back</Text>
             </View>
+            <TouchableOpacity onPress={() => setShowProfileModal(true)}>
+              <Image
+                source={userImage}
+                placeholder={{ blurhash }}
+                style={styles.profile}
+              />
+            </TouchableOpacity>
           </View>
-          <View style={styles.clothesContainer}>
-            <Text style={styles.headerText}>We thought you might like these</Text>
+
+          <View style={styles.inputcontainer}>
+            <TextInput
+              style={styles.inputtext}
+              placeholder="Search"
+            />
+            <TouchableOpacity
+              style={styles.searchButton}
+              onPress={() => {
+                // Add search functionality here
+              }}
+            >
+              <FontAwesome5 name="search" size={20} color="#007bff" />
+            </TouchableOpacity>
           </View>
         </View>
+        <View style={styles.clothesContainer}>
+          <Text style={styles.headerText}>We thought you might like these</Text>
+        </View>
+      </View>
     </SafeAreaView>
 
   }
@@ -108,6 +109,19 @@ const Home = () => {
     fetchAllActiveClothes()
   }, [])
 
+  const fetchAllActiveClothes = async () => {
+    try {
+      setRefreshing(true)
+      let allActiveclothes = await listAllActiveClothes();
+      setAllClothes(allActiveclothes!);
+    } catch (error) {
+      console.log(error)
+    }
+    finally {
+      setRefreshing(false)
+    }
+  }
+
   //listen for changes in the appwrite document for realtime support
   // useEffect(() => {
   //   const unsubscribe = () => listenForChanges((newCloth) => {
@@ -128,8 +142,10 @@ const Home = () => {
               data={allClothes}
               numColumns={2}
               columnWrapperStyle={styles.flatlistItemsContainer}
-              style = {{backgroundColor: "#fff"}}
+              style={{ backgroundColor: "#fff" }}
               ListHeaderComponent={listHeaderComponent}
+              refreshing={refreshing}
+              onRefresh={fetchAllActiveClothes}
               renderItem={({ item }) =>
                 <CustomCard
                   cloth={item}
@@ -148,7 +164,7 @@ const Home = () => {
           </>
           :
           <LoadingScreen />
-    }
+      }
 
 
 

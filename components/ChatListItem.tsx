@@ -5,9 +5,11 @@ import { Colors } from '@/constants/Colors'
 import { router } from 'expo-router'
 import { generateProfilePictureLink, userType } from '@/lib/appwriteFunctions'
 import { blurhash } from '@/constants/blurhash'
+import { userMessageType } from '@/app/(tabs)/messenger'
+import { useUser } from '@/contexts/UserAuth'
 
 type propType = {
-  chatData: userType
+  chatData: userMessageType
 }
 
 const handleChatPress =  (receiverID: userType) => {
@@ -17,7 +19,8 @@ const handleChatPress =  (receiverID: userType) => {
                 }})}
 
 const ChatListItem = ({chatData} : propType) => {
-  // console.log(chatData.profilePictureID)
+  // console.log(chatData.lastMessage)
+  const userAuth = useUser()
   return (
     <Pressable style = {[styles.mainContainer]}
     onPress={() => handleChatPress(chatData)}
@@ -30,7 +33,12 @@ const ChatListItem = ({chatData} : propType) => {
       />
       <View style = {styles.nameMessageContainer}>
         <Text style = {styles.text}>{`${chatData.firstName} ${chatData.lastName}`}</Text>
-        <Text style = {styles.text}>{`${"Last Message"}`}</Text>
+        {
+          chatData.lastMessageUser === userAuth?.current?.email ?
+          <Text style = {styles.yourText} numberOfLines={1}>{`You: ${chatData.lastMessage}`}</Text>
+          :
+          <Text style = {styles.text} numberOfLines={1}>{`Them: ${chatData.lastMessage}`}</Text>
+        }
         
       </View>
     </Pressable>
@@ -45,26 +53,30 @@ const styles = StyleSheet.create({
     display:"flex",
     flex:1,
     flexDirection: "row",
-    gap:40,
+    gap:20,
     marginBottom: 10,
     borderRadius: 10,
-    marginHorizontal: 10,
-    paddingHorizontal: 10,
+    marginHorizontal: "3%",
     paddingVertical: 10,
     maxHeight: 70
   },
   userImage: {
-    borderRadius: 50,
+    borderRadius: "50%",
     height:50,
-    width:50
+    width:50,
   },
   nameMessageContainer:{
     display: "flex",
     flexDirection: "column",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    flex:1,
   },
   text: {
     fontSize: 18,
-
+    fontWeight: "600",
+  },
+  yourText: {
+    fontSize: 18,
+    fontWeight: "400",
   }
 })

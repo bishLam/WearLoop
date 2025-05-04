@@ -4,7 +4,6 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
-  Image,
   TextInput,
   KeyboardAvoidingView,
   Platform as RNPlatform,
@@ -12,6 +11,7 @@ import {
   Platform,
   Pressable,
 } from 'react-native';
+import { Image } from 'expo-image';
 import React, { useState, useRef } from 'react';
 import { Dropdown } from 'react-native-element-dropdown';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,6 +24,7 @@ import { defaultImage } from '@/constants/defaultImage';
 import { Colors } from '@/constants/Colors';
 import { ID } from 'react-native-appwrite';
 import { useUser } from '@/contexts/UserAuth';
+import { blurhash } from '@/constants/blurhash';
 
 
 const Create = () => {
@@ -179,7 +180,7 @@ const Create = () => {
       style={{ flex: 1 }}
     >
       <SafeAreaView style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingVertical: "2%" }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: "5%", paddingTop: "2%" }}>
           <View style={styles.mainContainer}>
             <View style={styles.header}>
               {/* button to go back to the previous page */}
@@ -210,11 +211,13 @@ const Create = () => {
                 :
                 <Image
                   style={styles.image}
+                  placeholder={blurhash}
+                  contentFit='contain'
                   source={
-                    imageUri ? {
-                      uri: imageUri
-                    } :
-                      { uri: defaultImage }}
+                    imageUri ?
+                      imageUri
+                  :
+                      defaultImage }
                 />
               }
 
@@ -385,7 +388,6 @@ const styles = StyleSheet.create({
   image: {
     height: 150,
     width: 150,
-    resizeMode: "cover",
     alignSelf: "center",
     marginTop: 30,
     borderRadius: 15
